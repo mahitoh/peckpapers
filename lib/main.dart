@@ -40,7 +40,7 @@ class _PeckPapersAppState extends State<PeckPapersApp> {
     return MaterialApp(
       title: 'PeckPapers',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
+      theme: AppTheme.light,
       home: _onboardingDone
           ? const MainShell()
           : OnboardingScreen(onFinish: _finishOnboarding),

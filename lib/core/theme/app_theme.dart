@@ -8,14 +8,14 @@ import 'app_text_styles.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get dark => ThemeData(
+  static ThemeData get light => ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
+    brightness: Brightness.light,
     scaffoldBackgroundColor: AppColors.bgBase,
-    colorScheme: const ColorScheme.dark(
-      primary: AppColors.amber,
+    colorScheme: const ColorScheme.light(
+      primary: AppColors.primary,
       onPrimary: AppColors.textInverse,
-      secondary: AppColors.violet,
+      secondary: AppColors.secondary,
       onSecondary: AppColors.textPrimary,
       surface: AppColors.bgCard,
       onSurface: AppColors.textPrimary,
@@ -36,16 +36,16 @@ class AppTheme {
       iconTheme: const IconThemeData(color: AppColors.textPrimary, size: 22),
       systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.dark,
         systemNavigationBarColor: AppColors.bgBase,
-        systemNavigationBarIconBrightness: Brightness.light,
+        systemNavigationBarIconBrightness: Brightness.dark,
       ),
     ),
 
     // ─── Bottom Navigation Bar ───────────────────────────────
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: AppColors.bgSurface,
-      selectedItemColor: AppColors.amber,
+      selectedItemColor: AppColors.primary,
       unselectedItemColor: AppColors.textTertiary,
       type: BottomNavigationBarType.fixed,
       elevation: 0,
@@ -65,10 +65,10 @@ class AppTheme {
     // ─── NavigationBar (Material 3) ──────────────────────────
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: AppColors.bgSurface,
-      indicatorColor: AppColors.amberDim,
+      indicatorColor: AppColors.primaryDim,
       iconTheme: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return const IconThemeData(color: AppColors.amber, size: 22);
+          return const IconThemeData(color: AppColors.primary, size: 22);
         }
         return const IconThemeData(color: AppColors.textTertiary, size: 22);
       }),
@@ -78,7 +78,7 @@ class AppTheme {
             fontFamily: 'DMSans',
             fontSize: 10,
             fontWeight: FontWeight.w600,
-            color: AppColors.amber,
+            color: AppColors.primary,
             letterSpacing: 0.3,
           );
         }
@@ -100,9 +100,9 @@ class AppTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.pressed)) return AppColors.amberLight;
+          if (states.contains(WidgetState.pressed)) return AppColors.primaryLight;
           if (states.contains(WidgetState.disabled)) return AppColors.border;
-          return AppColors.amber;
+          return AppColors.primary;
         }),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) {
@@ -130,12 +130,12 @@ class AppTheme {
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.all(Colors.transparent),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.pressed)) return AppColors.amberLight;
+          if (states.contains(WidgetState.pressed)) return AppColors.primaryLight;
           return AppColors.textPrimary;
         }),
         side: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.pressed)) {
-            return const BorderSide(color: AppColors.amberLight, width: 1.5);
+            return const BorderSide(color: AppColors.primaryLight, width: 1.5);
           }
           return const BorderSide(color: AppColors.border, width: 1.5);
         }),
@@ -156,12 +156,12 @@ class AppTheme {
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
         foregroundColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.pressed)) return AppColors.amberLight;
-          return AppColors.amber;
+          if (states.contains(WidgetState.pressed)) return AppColors.primaryLight;
+          return AppColors.primary;
         }),
-        overlayColor: WidgetStateProperty.all(AppColors.amberDim),
+        overlayColor: WidgetStateProperty.all(AppColors.primaryDim),
         textStyle: WidgetStateProperty.all(
-          AppTextStyles.buttonMD.copyWith(color: AppColors.amber),
+          AppTextStyles.buttonMD.copyWith(color: AppColors.primary),
         ),
         padding: WidgetStateProperty.all(
           const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -175,11 +175,11 @@ class AppTheme {
     // ─── Input / TextField ───────────────────────────────────
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.bgCard,
+      fillColor: AppColors.bgSurface,
       hintStyle: AppTextStyles.bodyMD.copyWith(color: AppColors.textTertiary),
       labelStyle: AppTextStyles.bodyMD.copyWith(color: AppColors.textSecondary),
       floatingLabelStyle: AppTextStyles.labelLG.copyWith(
-        color: AppColors.amber,
+        color: AppColors.primary,
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       border: OutlineInputBorder(
@@ -192,7 +192,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.amber, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -216,9 +216,9 @@ class AppTheme {
 
     // ─── Chip ────────────────────────────────────────────────
     chipTheme: ChipThemeData(
-      backgroundColor: AppColors.bgCard,
-      selectedColor: AppColors.amberDim,
-      disabledColor: AppColors.bgCard,
+      backgroundColor: AppColors.bgSurface,
+      selectedColor: AppColors.primaryDim,
+      disabledColor: AppColors.bgSurface,
       labelStyle: AppTextStyles.labelLG,
       side: const BorderSide(color: AppColors.border, width: 1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -258,17 +258,17 @@ class AppTheme {
 
     // ─── Progress Indicator ──────────────────────────────────
     progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: AppColors.amber,
+      color: AppColors.primary,
       linearTrackColor: AppColors.border,
       circularTrackColor: AppColors.border,
     ),
 
     // ─── Slider ──────────────────────────────────────────────
     sliderTheme: SliderThemeData(
-      activeTrackColor: AppColors.amber,
+      activeTrackColor: AppColors.primary,
       inactiveTrackColor: AppColors.border,
-      thumbColor: AppColors.amber,
-      overlayColor: AppColors.amberMid,
+      thumbColor: AppColors.primary,
+      overlayColor: AppColors.primaryMid,
       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
       trackHeight: 3,
     ),
@@ -276,11 +276,11 @@ class AppTheme {
     // ─── Switch ──────────────────────────────────────────────
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) return AppColors.amber;
+        if (states.contains(WidgetState.selected)) return AppColors.primary;
         return AppColors.textTertiary;
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) return AppColors.amberMid;
+        if (states.contains(WidgetState.selected)) return AppColors.primaryMid;
         return AppColors.border;
       }),
       trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
@@ -291,13 +291,13 @@ class AppTheme {
 
     // ─── TabBar ──────────────────────────────────────────────
     tabBarTheme: TabBarThemeData(
-      labelColor: AppColors.amber,
+      labelColor: AppColors.primary,
       unselectedLabelColor: AppColors.textTertiary,
-      labelStyle: AppTextStyles.headingSM.copyWith(color: AppColors.amber),
+      labelStyle: AppTextStyles.headingSM.copyWith(color: AppColors.primary),
       unselectedLabelStyle: AppTextStyles.headingSM.copyWith(
         color: AppColors.textTertiary,
       ),
-      indicatorColor: AppColors.amber,
+      indicatorColor: AppColors.primary,
       indicatorSize: TabBarIndicatorSize.label,
       dividerColor: AppColors.border,
     ),

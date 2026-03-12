@@ -527,9 +527,11 @@ class _StreakTimeRow extends StatelessWidget {
                 Text('days in a row', style: AppTextStyles.bodyMD),
                 const SizedBox(height: 14),
 
-                // Mini week dots
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // Mini week dots - wrapped to prevent overflow
+                Wrap(
+                  spacing: 4,
+                  runSpacing: 4,
+                  alignment: WrapAlignment.start,
                   children: List.generate(7, (i) {
                     final done = i < 6;
                     return AnimatedBuilder(
