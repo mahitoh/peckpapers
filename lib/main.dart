@@ -1,5 +1,6 @@
 ﻿// lib/main.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/settings/app_settings.dart';
@@ -50,12 +51,71 @@ class _PeckPapersAppState extends State<PeckPapersApp> {
           title: 'PeckPapers',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.build(isDark: widget.settings.isDark),
-          home: _onboardingDone
-              ? const MainShell()
-              : OnboardingScreen(onFinish: _finishOnboarding),
+          home: _DeviceBanner(
+            child: _onboardingDone
+                ? const MainShell()
+                : OnboardingScreen(onFinish: _finishOnboarding),
+          ),
         ),
       ),
     );
+  }
+}
+
+class _DeviceBanner extends StatelessWidget {
+  const _DeviceBanner({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final deviceLabel = _deviceLabel();
+    return Stack(
+      children: [
+        child,
+        Positioned(
+          top: 8,
+          right: 8,
+          child: IgnorePointer(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(179, 0, 0, 0),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                deviceLabel,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _deviceLabel() {
+    if (kIsWeb) {
+      return 'WEB BROWSER';
+    }
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return 'ANDROID EMULATOR/DEVICE';
+      case TargetPlatform.iOS:
+        return 'iOS SIMULATOR/DEVICE';
+      case TargetPlatform.windows:
+        return 'WINDOWS DESKTOP';
+      case TargetPlatform.macOS:
+        return 'MAC DESKTOP';
+      case TargetPlatform.linux:
+        return 'LINUX DESKTOP';
+      case TargetPlatform.fuchsia:
+        return 'FUCHSIA';
+    }
   }
 }
 

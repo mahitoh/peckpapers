@@ -1,9 +1,13 @@
 ﻿// lib/features/onboarding/onboarding_screen.dart
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_button.dart';
+import '../auth/login_screen.dart';
+import '../auth/signup_screen.dart';
 
 // â”€â”€â”€ Data Model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -144,6 +148,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final size = MediaQuery.sizeOf(context);
     final page = _pages[_currentPage];
     final isLast = _currentPage == _pages.length - 1;
+    final illustrationSize = math
+        .min(size.width * 0.62, size.height * 0.42)
+        .clamp(220.0, 340.0);
+    final topGap = (size.height * 0.08).clamp(24.0, 56.0);
+    final midGap = (size.height * 0.05).clamp(16.0, 40.0);
 
     return Scaffold(
       backgroundColor: AppColors.bgBase,
@@ -217,12 +226,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               opacity: _fadeAnim,
               child: SlideTransition(
                 position: _slideAnim,
-                child: Padding(
+                child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 28),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: size.height * 0.10),
+                      SizedBox(height: topGap),
 
                       // â”€â”€ Illustration area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       Center(
@@ -230,11 +239,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           style: page.illustration,
                           accentColor: page.accentColor,
                           pulseAnim: _pulseAnim,
-                          size: size.width * 0.62,
+                          size: illustrationSize,
                         ),
                       ),
 
-                      SizedBox(height: size.height * 0.06),
+                      SizedBox(height: midGap),
 
                       // â”€â”€ Tag pill â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       _TagPill(label: page.tag, color: page.accentColor),
@@ -265,7 +274,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         style: AppTextStyles.bodyLG.copyWith(height: 1.65),
                       ),
 
-                      const Spacer(),
+                      SizedBox(height: (size.height * 0.04).clamp(16.0, 32.0)),
 
                       // â”€â”€ Dots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       Center(
@@ -296,6 +305,66 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                       const SizedBox(height: 12),
 
+                      if (isLast)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const LoginScreen(),
+                                    ),
+                                  );
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  side: BorderSide(color: AppColors.border),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Log In',
+                                  style: AppTextStyles.buttonMD.copyWith(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const SignupScreen(),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Sign Up',
+                                  style: AppTextStyles.buttonMD.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      if (isLast) const SizedBox(height: 8),
+
                       // â”€â”€ Secondary ghost action â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       if (!isLast)
                         Center(
@@ -310,7 +379,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           ),
                         ),
 
-                      SizedBox(height: size.height * 0.04),
+                      SizedBox(height: (size.height * 0.04).clamp(16.0, 32.0)),
                     ],
                   ),
                 ),

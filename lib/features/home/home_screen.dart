@@ -1,5 +1,7 @@
 ﻿// lib/features/home/home_screen.dart
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import '../../core/settings/app_settings_scope.dart';
 import '../../core/theme/app_colors.dart';
@@ -23,6 +25,20 @@ class _Task {
   final int priority;
   final Color color;
   final bool completed;
+}
+
+class _StatItem {
+  const _StatItem({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
 }
 
 final _mockTasks = [
@@ -52,6 +68,33 @@ final _mockTasks = [
   ),
 ];
 
+final _stats = [
+  _StatItem(
+    label: 'Due Today',
+    value: '12',
+    icon: Icons.style_outlined,
+    color: AppColors.primary,
+  ),
+  _StatItem(
+    label: 'Streak',
+    value: '7',
+    icon: Icons.local_fire_department_outlined,
+    color: AppColors.accentOrange,
+  ),
+  _StatItem(
+    label: 'Total Scans',
+    value: '48',
+    icon: Icons.document_scanner_outlined,
+    color: AppColors.secondary,
+  ),
+  _StatItem(
+    label: 'Mastery %',
+    value: '72%',
+    icon: Icons.emoji_events_outlined,
+    color: AppColors.accentGreen,
+  ),
+];
+
 // â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class HomeScreen extends StatefulWidget {
@@ -74,6 +117,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // Reserved for future schedule tabs
+  late final PageController _statsController;
+  int _currentStat = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _statsController = PageController(viewportFraction: 0.72);
+  }
+
+  @override
+  void dispose() {
+    _statsController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // â”€â”€ Stats Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             SliverToBoxAdapter(
-              child: _buildStatsRow(),
+              child: _buildStatsCarousel(),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 28)),
@@ -113,12 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
             // â”€â”€ Task List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (ctx, i) => _buildTaskCard(_mockTasks[i], i),
-                childCount: _mockTasks.length,
-              ),
-            ),
+            _buildResponsiveTaskList(),
 
             const SliverToBoxAdapter(child: SizedBox(height: 32)),
           ],
@@ -284,55 +336,166 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // â”€â”€â”€ Stats Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€â”€ Stats Carousel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  Widget _buildStatsRow() {
+  Widget _buildStatsCarousel() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Row(
+      child: Column(
         children: [
-          _buildStatCard('Due Today', '12', Icons.style_outlined, AppColors.primary),
-          const SizedBox(width: 12),
-          _buildStatCard('Streak', '7', Icons.local_fire_department_outlined, AppColors.accentOrange),
-          const SizedBox(width: 12),
-          _buildStatCard('Total Scans', '48', Icons.document_scanner_outlined, AppColors.secondary),
-          const SizedBox(width: 12),
-          _buildStatCard('Mastery %', '72%', Icons.emoji_events_outlined, AppColors.accentGreen),
+          SizedBox(
+            height: 150,
+            child: PageView.builder(
+              controller: _statsController,
+              itemCount: _stats.length,
+              onPageChanged: (index) => setState(() => _currentStat = index),
+              itemBuilder: (context, index) {
+                return AnimatedBuilder(
+                  animation: _statsController,
+                  builder: (context, child) {
+                    final page = _statsController.hasClients
+                        ? (_statsController.page ?? _currentStat.toDouble())
+                        : _currentStat.toDouble();
+                    final delta = (page - index).abs().clamp(0.0, 1.0);
+                    final scale = lerpDouble(1.0, 0.86, delta) ?? 1.0;
+                    final blur = lerpDouble(0.0, 6.0, delta) ?? 0.0;
+                    final opacity = lerpDouble(1.0, 0.6, delta) ?? 1.0;
+                    final isActive = delta < 0.15;
+
+                    return Center(
+                      child: Transform.scale(
+                        scale: scale,
+                        child: Opacity(
+                          opacity: opacity,
+                          child: ImageFiltered(
+                            imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+                            child: _buildStatCard(_stats[index], isActive: isActive),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildStatDots(),
         ],
       ),
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border, width: 1),
-          boxShadow: AppColors.cardShadow,
+  Widget _buildStatCard(_StatItem stat, {required bool isActive}) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+      padding: EdgeInsets.symmetric(
+        horizontal: isActive ? 18 : 14,
+        vertical: isActive ? 16 : 12,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.bgCard,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isActive ? stat.color.withOpacityCompat(0.6) : AppColors.border,
+          width: isActive ? 1.4 : 1,
         ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: AppTextStyles.headingSM.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
+        boxShadow: isActive
+            ? [
+                BoxShadow(
+                  color: stat.color.withOpacityCompat(0.18),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
+                ),
+                ...AppColors.cardShadow,
+              ]
+            : AppColors.cardShadow,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: isActive ? 44 : 38,
+            height: isActive ? 44 : 38,
+            decoration: BoxDecoration(
+              color: stat.color.withOpacityCompat(0.12),
+              shape: BoxShape.circle,
             ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: AppTextStyles.labelSM.copyWith(
-                color: AppColors.textSecondary,
-              ),
+            child: Icon(stat.icon, color: stat.color, size: isActive ? 24 : 22),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            stat.value,
+            style: AppTextStyles.headingSM.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: isActive ? FontWeight.w800 : FontWeight.w700,
+              fontSize: isActive ? 20 : 18,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            stat.label,
+            style: AppTextStyles.labelSM.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatDots() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(_stats.length, (i) {
+        final isActive = i == _currentStat;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          height: 6,
+          width: isActive ? 24 : 8,
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.primary : AppColors.border,
+            borderRadius: BorderRadius.circular(8),
+          ),
+        );
+      }),
+    );
+  }
+
+  SliverPadding _buildResponsiveTaskList() {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      sliver: SliverLayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.crossAxisExtent >= 720;
+          if (!isWide) {
+            return SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (ctx, i) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: _buildTaskCard(_mockTasks[i], i),
+                ),
+                childCount: _mockTasks.length,
+              ),
+            );
+          }
+
+          return SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+              (ctx, i) => _buildTaskCard(_mockTasks[i], i),
+              childCount: _mockTasks.length,
+            ),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 1.7,
+            ),
+          );
+        },
       ),
     );
   }
@@ -370,19 +533,17 @@ class _HomeScreenState extends State<HomeScreen> {
   // â”€â”€â”€ Task Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildTaskCard(_Task task, int index) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border, width: 1),
-          boxShadow: AppColors.cardShadow,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.bgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border, width: 1),
+        boxShadow: AppColors.cardShadow,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
               // Priority indicator
               Container(
                 width: 4,
@@ -476,8 +637,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? const Icon(Icons.check, color: Colors.white, size: 18)
                     : null,
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );
