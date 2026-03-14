@@ -1,4 +1,4 @@
-// lib/features/library/library_screen.dart
+﻿// lib/features/library/library_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,13 +6,12 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_card.dart';
 import '../../core/widgets/peck_badge.dart';
-import '../../core/widgets/section_header.dart';
 import '../../core/widgets/glow_container.dart';
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Mock data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-class _Document {
-  const _Document({
+class Document {
+  const Document({
     required this.id,
     required this.title,
     required this.subject,
@@ -36,10 +35,10 @@ class _Document {
   final bool isFavourite;
 }
 
-const _allDocs = [
-  _Document(
+final _allDocs = [
+  Document(
     id: '1',
-    title: 'Calculus — Integration by Parts',
+    title: 'Calculus â€” Integration by Parts',
     subject: 'Mathematics',
     pageCount: 4,
     cardCount: 24,
@@ -49,7 +48,7 @@ const _allDocs = [
     dateAdded: '2 days ago',
     isFavourite: true,
   ),
-  _Document(
+  Document(
     id: '2',
     title: 'Organic Chemistry Part 2',
     subject: 'Chemistry',
@@ -60,9 +59,9 @@ const _allDocs = [
     icon: Icons.science_rounded,
     dateAdded: '3 days ago',
   ),
-  _Document(
+  Document(
     id: '3',
-    title: 'World War II — Causes & Effects',
+    title: 'World War II â€” Causes & Effects',
     subject: 'History',
     pageCount: 8,
     cardCount: 16,
@@ -72,7 +71,7 @@ const _allDocs = [
     dateAdded: '5 days ago',
     isFavourite: true,
   ),
-  _Document(
+  Document(
     id: '4',
     title: 'Newton\'s Laws of Motion',
     subject: 'Physics',
@@ -83,7 +82,7 @@ const _allDocs = [
     icon: Icons.bolt_rounded,
     dateAdded: '1 week ago',
   ),
-  _Document(
+  Document(
     id: '5',
     title: 'Supply & Demand Curves',
     subject: 'Economics',
@@ -94,9 +93,9 @@ const _allDocs = [
     icon: Icons.trending_up_rounded,
     dateAdded: '1 week ago',
   ),
-  _Document(
+  Document(
     id: '6',
-    title: 'Cell Biology — Mitosis',
+    title: 'Cell Biology â€” Mitosis',
     subject: 'Biology',
     pageCount: 7,
     cardCount: 32,
@@ -107,7 +106,7 @@ const _allDocs = [
   ),
 ];
 
-const _subjects = [
+final _subjects = [
   'All',
   'Mathematics',
   'Physics',
@@ -121,7 +120,7 @@ enum _SortOption { recent, title, progress, cardCount }
 
 enum _ViewMode { list, grid }
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({
@@ -131,7 +130,7 @@ class LibraryScreen extends StatefulWidget {
     this.onScanTap,
   });
 
-  final ValueChanged<_Document>? onDocumentTap;
+  final ValueChanged<Document>? onDocumentTap;
   final VoidCallback? onBack;
   final VoidCallback? onScanTap;
 
@@ -194,7 +193,7 @@ class _LibraryScreenState extends State<LibraryScreen>
     super.dispose();
   }
 
-  // ── Activate / deactivate search ─────────────────────────────────────────────
+  // â”€â”€ Activate / deactivate search â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   void _activateSearch() {
     setState(() => _searchActive = true);
@@ -219,10 +218,10 @@ class _LibraryScreenState extends State<LibraryScreen>
     });
   }
 
-  // ── Filter + sort docs ────────────────────────────────────────────────────────
+  // â”€â”€ Filter + sort docs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  List<_Document> get _filtered {
-    var docs = List<_Document>.from(_allDocs);
+  List<Document> get _filtered {
+    var docs = List<Document>.from(_allDocs);
 
     // Subject filter
     if (_selectedSubject != 'All') {
@@ -259,7 +258,7 @@ class _LibraryScreenState extends State<LibraryScreen>
     return docs;
   }
 
-  // ── Sort sheet ────────────────────────────────────────────────────────────────
+  // â”€â”€ Sort sheet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   void _showSortSheet() {
     showModalBottomSheet(
@@ -281,9 +280,9 @@ class _LibraryScreenState extends State<LibraryScreen>
     _listCtrl.forward();
   }
 
-  // ── Delete doc ────────────────────────────────────────────────────────────────
+  // â”€â”€ Delete doc â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  void _deleteDoc(_Document doc) {
+  void _deleteDoc(Document doc) {
     HapticFeedback.mediumImpact();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -309,7 +308,7 @@ class _LibraryScreenState extends State<LibraryScreen>
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // ── Header ──────────────────────────────────────────
+          // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           SliverToBoxAdapter(
             child: _LibraryHeader(
               searchActive: _searchActive,
@@ -335,7 +334,7 @@ class _LibraryScreenState extends State<LibraryScreen>
             ),
           ),
 
-          // ── Subject filter chips ─────────────────────────────
+          // â”€â”€ Subject filter chips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           SliverToBoxAdapter(
             child: _SubjectChips(
               selected: _selectedSubject,
@@ -348,7 +347,7 @@ class _LibraryScreenState extends State<LibraryScreen>
 
           const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
-          // ── Result count ────────────────────────────────────
+          // â”€â”€ Result count â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
@@ -372,7 +371,7 @@ class _LibraryScreenState extends State<LibraryScreen>
             ),
           ),
 
-          // ── Document list / grid ─────────────────────────────
+          // â”€â”€ Document list / grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           if (docs.isEmpty)
             SliverToBoxAdapter(child: _EmptyState(onScan: widget.onScanTap))
           else if (_viewMode == _ViewMode.list)
@@ -454,13 +453,13 @@ class _LibraryScreenState extends State<LibraryScreen>
         ],
       ),
 
-      // ── FAB ─────────────────────────────────────────────────
+      // â”€â”€ FAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       floatingActionButton: _ScanFab(onTap: widget.onScanTap),
     );
   }
 }
 
-// ─── Library Header ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Library Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _LibraryHeader extends StatelessWidget {
   const _LibraryHeader({
@@ -516,7 +515,7 @@ class _LibraryHeader extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: AppColors.border),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back_ios_new_rounded,
                         size: 16,
                         color: AppColors.textPrimary,
@@ -596,15 +595,15 @@ class _LibraryHeader extends StatelessWidget {
   }
 }
 
-// ─── Header Button ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Header Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _HeaderBtn extends StatelessWidget {
-  const _HeaderBtn({
+  _HeaderBtn({
     required this.icon,
     required this.onTap,
     this.isActive = false,
-    this.activeColor = AppColors.amber,
-  });
+    Color? activeColor,
+  }) : activeColor = activeColor ?? AppColors.amber;
   final IconData icon;
   final VoidCallback onTap;
   final bool isActive;
@@ -619,10 +618,10 @@ class _HeaderBtn extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: isActive ? activeColor.withOpacity(0.15) : AppColors.bgCard,
+          color: isActive ? activeColor.withOpacityCompat(0.15) : AppColors.bgCard,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isActive ? activeColor.withOpacity(0.4) : AppColors.border,
+            color: isActive ? activeColor.withOpacityCompat(0.4) : AppColors.border,
           ),
         ),
         child: Icon(
@@ -635,7 +634,7 @@ class _HeaderBtn extends StatelessWidget {
   }
 }
 
-// ─── Search Field ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Search Field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _SearchField extends StatelessWidget {
   const _SearchField({required this.ctrl, required this.focus});
@@ -654,7 +653,7 @@ class _SearchField extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         children: [
-          const Icon(Icons.search_rounded, color: AppColors.amber, size: 18),
+          Icon(Icons.search_rounded, color: AppColors.amber, size: 18),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
@@ -662,7 +661,7 @@ class _SearchField extends StatelessWidget {
               focusNode: focus,
               style: AppTextStyles.bodyMDMedium,
               decoration: const InputDecoration(
-                hintText: 'Search documents…',
+                hintText: 'Search documentsâ€¦',
                 border: InputBorder.none,
                 isDense: true,
                 filled: false,
@@ -677,7 +676,7 @@ class _SearchField extends StatelessWidget {
   }
 }
 
-// ─── Subject Chips ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Subject Chips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _SubjectChips extends StatelessWidget {
   const _SubjectChips({required this.selected, required this.onSelect});
@@ -692,7 +691,7 @@ class _SubjectChips extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 24),
         itemCount: _subjects.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
           final s = _subjects[i];
           final isSelected = s == selected;
@@ -726,7 +725,7 @@ class _SubjectChips extends StatelessWidget {
   }
 }
 
-// ─── Swipable Doc Row ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Swipable Doc Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _SwipableDocRow extends StatefulWidget {
   const _SwipableDocRow({
@@ -735,7 +734,7 @@ class _SwipableDocRow extends StatefulWidget {
     required this.onDelete,
     required this.onFav,
   });
-  final _Document doc;
+  final Document doc;
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final VoidCallback onFav;
@@ -783,7 +782,7 @@ class _SwipableDocRowState extends State<_SwipableDocRow> {
       onTap: _revealed ? _snap : null,
       child: Stack(
         children: [
-          // ── Action buttons (behind) ────────────────────────
+          // â”€â”€ Action buttons (behind) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Positioned.fill(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -815,7 +814,7 @@ class _SwipableDocRowState extends State<_SwipableDocRow> {
             ),
           ),
 
-          // ── Card (slides left) ────────────────────────────
+          // â”€â”€ Card (slides left) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
@@ -848,9 +847,9 @@ class _SwipeAction extends StatelessWidget {
         width: width,
         height: double.infinity,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
+          color: color.withOpacityCompat(0.12),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.25), width: 1),
+          border: Border.all(color: color.withOpacityCompat(0.25), width: 1),
         ),
         child: Icon(icon, color: color, size: 20),
       ),
@@ -858,11 +857,11 @@ class _SwipeAction extends StatelessWidget {
   }
 }
 
-// ─── Doc List Card ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Doc List Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _DocListCard extends StatelessWidget {
   const _DocListCard({required this.doc, required this.onTap});
-  final _Document doc;
+  final Document doc;
   final VoidCallback onTap;
 
   @override
@@ -870,7 +869,7 @@ class _DocListCard extends StatelessWidget {
     return PeckCard(
       onTap: onTap,
       padding: const EdgeInsets.all(16),
-      borderColor: doc.color.withOpacity(0.18),
+      borderColor: doc.color.withOpacityCompat(0.18),
       child: Row(
         children: [
           // Icon
@@ -878,9 +877,9 @@ class _DocListCard extends StatelessWidget {
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color: doc.color.withOpacity(0.12),
+              color: doc.color.withOpacityCompat(0.12),
               borderRadius: BorderRadius.circular(13),
-              border: Border.all(color: doc.color.withOpacity(0.2), width: 1),
+              border: Border.all(color: doc.color.withOpacityCompat(0.2), width: 1),
             ),
             child: Icon(doc.icon, color: doc.color, size: 22),
           ),
@@ -903,7 +902,7 @@ class _DocListCard extends StatelessWidget {
                       ),
                     ),
                     if (doc.isFavourite)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.only(left: 6),
                         child: Icon(
                           Icons.star_rounded,
@@ -949,7 +948,7 @@ class _DocListCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(2),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: doc.color.withOpacity(0.5),
+                                    color: doc.color.withOpacityCompat(0.5),
                                     blurRadius: 4,
                                   ),
                                 ],
@@ -991,11 +990,11 @@ class _DocListCard extends StatelessWidget {
   }
 }
 
-// ─── Doc Grid Card ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Doc Grid Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _DocGridCard extends StatelessWidget {
   const _DocGridCard({required this.doc, required this.onTap});
-  final _Document doc;
+  final Document doc;
   final VoidCallback onTap;
 
   @override
@@ -1003,7 +1002,7 @@ class _DocGridCard extends StatelessWidget {
     return PeckCard(
       onTap: onTap,
       padding: const EdgeInsets.all(16),
-      borderColor: doc.color.withOpacity(0.18),
+      borderColor: doc.color.withOpacityCompat(0.18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1015,7 +1014,7 @@ class _DocGridCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: doc.color.withOpacity(0.12),
+                  color: doc.color.withOpacityCompat(0.12),
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: Icon(doc.icon, color: doc.color, size: 22),
@@ -1088,7 +1087,7 @@ class _DocGridCard extends StatelessWidget {
   }
 }
 
-// ─── Empty State ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Empty State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _EmptyState extends StatelessWidget {
   const _EmptyState({this.onScan});
@@ -1112,7 +1111,7 @@ class _EmptyState extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.border),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.folder_open_rounded,
                 color: AppColors.textTertiary,
                 size: 36,
@@ -1160,7 +1159,7 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-// ─── Sort Sheet ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Sort Sheet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _SortSheet extends StatelessWidget {
   const _SortSheet({required this.selected, required this.onSelect});
@@ -1174,7 +1173,7 @@ class _SortSheet extends StatelessWidget {
       opt: _SortOption.recent,
     ),
     (
-      label: 'Title A–Z',
+      label: 'Title Aâ€“Z',
       icon: Icons.sort_by_alpha_rounded,
       opt: _SortOption.title,
     ),
@@ -1193,7 +1192,7 @@ class _SortSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
@@ -1239,7 +1238,7 @@ class _SortSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: isSelected
-                        ? AppColors.amber.withOpacity(0.3)
+                        ? AppColors.amber.withOpacityCompat(0.3)
                         : AppColors.border,
                   ),
                 ),
@@ -1263,7 +1262,7 @@ class _SortSheet extends StatelessWidget {
                     ),
                     const Spacer(),
                     if (isSelected)
-                      const Icon(
+                      Icon(
                         Icons.check_rounded,
                         color: AppColors.amber,
                         size: 18,
@@ -1279,7 +1278,7 @@ class _SortSheet extends StatelessWidget {
   }
 }
 
-// ─── Scan FAB ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Scan FAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _ScanFab extends StatefulWidget {
   const _ScanFab({this.onTap});
@@ -1343,3 +1342,4 @@ class _ScanFabState extends State<_ScanFab>
     );
   }
 }
+

@@ -1,19 +1,15 @@
-// lib/core/theme/app_text_styles.dart
+﻿// lib/core/theme/app_text_styles.dart
 
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
-/// PECKPAPERS Typography System
-/// Display/Headings: Sora — geometric, confident, futuristic
-/// Body/Labels:      DM Sans — clean, readable, friendly
 class AppTextStyles {
   AppTextStyles._();
 
   static const String _display = 'Sora';
   static const String _body = 'DMSans';
 
-  // ─── Display — Hero text, splash screens ──────────────────────
-  static const TextStyle displayXL = TextStyle(
+  static TextStyle get displayXL => TextStyle(
     fontFamily: _display,
     fontSize: 40,
     fontWeight: FontWeight.w800,
@@ -22,7 +18,7 @@ class AppTextStyles {
     letterSpacing: -1.2,
   );
 
-  static const TextStyle displayLG = TextStyle(
+  static TextStyle get displayLG => TextStyle(
     fontFamily: _display,
     fontSize: 32,
     fontWeight: FontWeight.w800,
@@ -31,7 +27,7 @@ class AppTextStyles {
     letterSpacing: -0.8,
   );
 
-  static const TextStyle displayMD = TextStyle(
+  static TextStyle get displayMD => TextStyle(
     fontFamily: _display,
     fontSize: 26,
     fontWeight: FontWeight.w700,
@@ -40,8 +36,7 @@ class AppTextStyles {
     letterSpacing: -0.5,
   );
 
-  // ─── Headings — Screen titles, section headers ─────────────────
-  static const TextStyle headingXL = TextStyle(
+  static TextStyle get headingXL => TextStyle(
     fontFamily: _display,
     fontSize: 22,
     fontWeight: FontWeight.w700,
@@ -50,7 +45,7 @@ class AppTextStyles {
     letterSpacing: -0.3,
   );
 
-  static const TextStyle headingLG = TextStyle(
+  static TextStyle get headingLG => TextStyle(
     fontFamily: _display,
     fontSize: 18,
     fontWeight: FontWeight.w600,
@@ -59,7 +54,7 @@ class AppTextStyles {
     letterSpacing: -0.2,
   );
 
-  static const TextStyle headingMD = TextStyle(
+  static TextStyle get headingMD => TextStyle(
     fontFamily: _display,
     fontSize: 16,
     fontWeight: FontWeight.w600,
@@ -68,7 +63,7 @@ class AppTextStyles {
     letterSpacing: -0.1,
   );
 
-  static const TextStyle headingSM = TextStyle(
+  static TextStyle get headingSM => TextStyle(
     fontFamily: _display,
     fontSize: 14,
     fontWeight: FontWeight.w600,
@@ -77,8 +72,7 @@ class AppTextStyles {
     letterSpacing: 0,
   );
 
-  // ─── Body — Paragraphs, descriptions ──────────────────────────
-  static const TextStyle bodyLG = TextStyle(
+  static TextStyle get bodyLG => TextStyle(
     fontFamily: _body,
     fontSize: 16,
     fontWeight: FontWeight.w400,
@@ -87,7 +81,7 @@ class AppTextStyles {
     letterSpacing: 0.1,
   );
 
-  static const TextStyle bodyMD = TextStyle(
+  static TextStyle get bodyMD => TextStyle(
     fontFamily: _body,
     fontSize: 14,
     fontWeight: FontWeight.w400,
@@ -96,7 +90,7 @@ class AppTextStyles {
     letterSpacing: 0.1,
   );
 
-  static const TextStyle bodySM = TextStyle(
+  static TextStyle get bodySM => TextStyle(
     fontFamily: _body,
     fontSize: 13,
     fontWeight: FontWeight.w400,
@@ -105,7 +99,7 @@ class AppTextStyles {
     letterSpacing: 0.1,
   );
 
-  static const TextStyle bodyMDMedium = TextStyle(
+  static TextStyle get bodyMDMedium => TextStyle(
     fontFamily: _body,
     fontSize: 14,
     fontWeight: FontWeight.w500,
@@ -114,8 +108,7 @@ class AppTextStyles {
     letterSpacing: 0.05,
   );
 
-  // ─── Labels — Chips, tags, tiny annotations ───────────────────
-  static const TextStyle labelLG = TextStyle(
+  static TextStyle get labelLG => TextStyle(
     fontFamily: _body,
     fontSize: 13,
     fontWeight: FontWeight.w500,
@@ -124,7 +117,7 @@ class AppTextStyles {
     letterSpacing: 0.2,
   );
 
-  static const TextStyle labelMD = TextStyle(
+  static TextStyle get labelMD => TextStyle(
     fontFamily: _body,
     fontSize: 11,
     fontWeight: FontWeight.w500,
@@ -133,7 +126,7 @@ class AppTextStyles {
     letterSpacing: 0.4,
   );
 
-  static const TextStyle labelSM = TextStyle(
+  static TextStyle get labelSM => TextStyle(
     fontFamily: _body,
     fontSize: 10,
     fontWeight: FontWeight.w600,
@@ -142,8 +135,7 @@ class AppTextStyles {
     letterSpacing: 0.8,
   );
 
-  /// Uppercase micro-label — e.g. "QUESTION", "AI GENERATED"
-  static const TextStyle labelCaps = TextStyle(
+  static TextStyle get labelCaps => TextStyle(
     fontFamily: _body,
     fontSize: 10,
     fontWeight: FontWeight.w700,
@@ -152,8 +144,7 @@ class AppTextStyles {
     letterSpacing: 1.5,
   );
 
-  // ─── Numbers — Stats, scores, counters ────────────────────────
-  static const TextStyle statXL = TextStyle(
+  static TextStyle get statXL => TextStyle(
     fontFamily: _display,
     fontSize: 48,
     fontWeight: FontWeight.w800,
@@ -162,7 +153,7 @@ class AppTextStyles {
     letterSpacing: -2.0,
   );
 
-  static const TextStyle statLG = TextStyle(
+  static TextStyle get statLG => TextStyle(
     fontFamily: _display,
     fontSize: 36,
     fontWeight: FontWeight.w800,
@@ -171,7 +162,7 @@ class AppTextStyles {
     letterSpacing: -1.5,
   );
 
-  static const TextStyle statMD = TextStyle(
+  static TextStyle get statMD => TextStyle(
     fontFamily: _display,
     fontSize: 24,
     fontWeight: FontWeight.w700,
@@ -180,8 +171,7 @@ class AppTextStyles {
     letterSpacing: -0.8,
   );
 
-  // ─── Buttons ──────────────────────────────────────────────────
-  static const TextStyle buttonLG = TextStyle(
+  static TextStyle get buttonLG => TextStyle(
     fontFamily: _display,
     fontSize: 16,
     fontWeight: FontWeight.w700,
@@ -190,7 +180,7 @@ class AppTextStyles {
     letterSpacing: 0.1,
   );
 
-  static const TextStyle buttonMD = TextStyle(
+  static TextStyle get buttonMD => TextStyle(
     fontFamily: _display,
     fontSize: 14,
     fontWeight: FontWeight.w600,
@@ -199,7 +189,7 @@ class AppTextStyles {
     letterSpacing: 0.1,
   );
 
-  static const TextStyle buttonSM = TextStyle(
+  static TextStyle get buttonSM => TextStyle(
     fontFamily: _display,
     fontSize: 12,
     fontWeight: FontWeight.w600,
@@ -208,9 +198,7 @@ class AppTextStyles {
     letterSpacing: 0.2,
   );
 
-  // ─── Scanner specific ─────────────────────────────────────────
-  /// "Scan Your Question..." title on scanner screen
-  static const TextStyle scannerTitle = TextStyle(
+  static TextStyle get scannerTitle => TextStyle(
     fontFamily: _display,
     fontSize: 22,
     fontWeight: FontWeight.w700,
@@ -219,8 +207,7 @@ class AppTextStyles {
     letterSpacing: -0.3,
   );
 
-  /// The orange "Question..." highlight word
-  static const TextStyle scannerAccent = TextStyle(
+  static TextStyle get scannerAccent => TextStyle(
     fontFamily: _display,
     fontSize: 22,
     fontWeight: FontWeight.w700,
@@ -229,8 +216,7 @@ class AppTextStyles {
     letterSpacing: -0.3,
   );
 
-  // ─── Flashcard specific ───────────────────────────────────────
-  static const TextStyle flashcardQuestion = TextStyle(
+  static TextStyle get flashcardQuestion => TextStyle(
     fontFamily: _display,
     fontSize: 20,
     fontWeight: FontWeight.w600,
@@ -239,7 +225,7 @@ class AppTextStyles {
     letterSpacing: -0.2,
   );
 
-  static const TextStyle flashcardAnswer = TextStyle(
+  static TextStyle get flashcardAnswer => TextStyle(
     fontFamily: _body,
     fontSize: 17,
     fontWeight: FontWeight.w400,
@@ -248,10 +234,10 @@ class AppTextStyles {
     letterSpacing: 0.1,
   );
 
-  // ─── Utility: quick color overrides ───────────────────────────
   static TextStyle withColor(TextStyle base, Color color) =>
       base.copyWith(color: color);
 
   static TextStyle withOpacity(TextStyle base, double opacity) =>
-      base.copyWith(color: base.color?.withOpacity(opacity));
+      base.copyWith(color: base.color?.withOpacityCompat(opacity));
 }
+

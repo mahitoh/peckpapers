@@ -1,4 +1,4 @@
-// lib/features/quiz/quiz_screen.dart
+﻿// lib/features/quiz/quiz_screen.dart
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -8,9 +8,9 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_badge.dart';
 import '../../core/widgets/peck_button.dart';
 import '../../core/widgets/glow_container.dart';
-import '../../core/widgets/peck_card.dart';
+import '../pdf/pdf_preview_screen.dart';
 
-// ─── Data models ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Data models â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class QuizQuestion {
   const QuizQuestion({
@@ -32,7 +32,7 @@ const _mockQuestions = [
     question: 'What does the Chain Rule state?',
     options: [
       'The derivative of a sum equals the sum of derivatives',
-      'If y = f(g(x)), then dy/dx = f\'(g(x)) · g\'(x)',
+      'If y = f(g(x)), then dy/dx = f\'(g(x)) Â· g\'(x)',
       'The integral of a product of two functions',
       'The limit of a composite function as x approaches zero',
     ],
@@ -54,7 +54,7 @@ const _mockQuestions = [
     correctIndex: 2,
     explanation:
         'The First Law of Thermodynamics is the law of '
-        'conservation of energy. ΔU = Q − W.',
+        'conservation of energy. Î”U = Q âˆ’ W.',
     subject: 'Physics',
   ),
   QuizQuestion(
@@ -68,8 +68,8 @@ const _mockQuestions = [
     correctIndex: 2,
     explanation:
         'In SN2, the nucleophile attacks the electrophilic '
-        'carbon from the back (180° from the leaving group), '
-        'inverting the stereochemistry — called Walden inversion.',
+        'carbon from the back (180Â° from the leaving group), '
+        'inverting the stereochemistry â€” called Walden inversion.',
     subject: 'Chemistry',
   ),
   QuizQuestion(
@@ -90,25 +90,25 @@ const _mockQuestions = [
   QuizQuestion(
     question: 'Integration by parts follows which formula?',
     options: [
-      '∫u dv = uv + ∫v du',
-      '∫u dv = uv − ∫v du',
-      '∫u dv = u/v − ∫v du',
-      '∫u dv = (uv)² − ∫v du',
+      'âˆ«u dv = uv + âˆ«v du',
+      'âˆ«u dv = uv âˆ’ âˆ«v du',
+      'âˆ«u dv = u/v âˆ’ âˆ«v du',
+      'âˆ«u dv = (uv)Â² âˆ’ âˆ«v du',
     ],
     correctIndex: 1,
     explanation:
-        '∫u dv = uv − ∫v du. '
+        'âˆ«u dv = uv âˆ’ âˆ«v du. '
         'This is derived from the product rule. '
         'Use LIATE to choose u.',
     subject: 'Mathematics',
   ),
 ];
 
-// ─── Quiz states ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Quiz states â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 enum _QuizState { active, results }
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({
@@ -152,17 +152,9 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
   // Feedback (correct/wrong) flash
   late AnimationController _feedbackCtrl;
-  late Animation<double> _feedbackAnim;
 
   QuizQuestion get _current => widget.questions[_currentIndex];
   bool get _isLastQ => _currentIndex >= widget.questions.length - 1;
-  int get _correctCount => _answers
-      .where(
-        (a) =>
-            a != null &&
-            a == widget.questions[_answers.indexOf(a)].correctIndex,
-      )
-      .length;
 
   @override
   void initState() {
@@ -211,10 +203,6 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
     _feedbackCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
-    );
-    _feedbackAnim = CurvedAnimation(
-      parent: _feedbackCtrl,
-      curve: Curves.easeOut,
     );
   }
 
@@ -300,7 +288,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  // ── Compute per-answer correctness ────────────────────────────────────────────
+  // â”€â”€ Compute per-answer correctness â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   _OptionState _optionState(int index) {
     if (!_answered) return _OptionState.idle;
@@ -333,7 +321,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Top bar ──────────────────────────────────────
+            // â”€â”€ Top bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             _QuizTopBar(
               current: _currentIndex + 1,
               total: widget.questions.length,
@@ -345,7 +333,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
             const SizedBox(height: 16),
 
-            // ── Progress segments ─────────────────────────────
+            // â”€â”€ Progress segments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             _QuizProgressBar(
               answers: _answers,
               questions: widget.questions,
@@ -355,7 +343,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
             const SizedBox(height: 28),
 
-            // ── Question ──────────────────────────────────────
+            // â”€â”€ Question â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: FadeTransition(
@@ -372,13 +360,13 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
             const SizedBox(height: 28),
 
-            // ── Options ───────────────────────────────────────
+            // â”€â”€ Options â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _current.options.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (_, _) => const SizedBox(height: 12),
                 itemBuilder: (_, i) => FadeTransition(
                   opacity: _optionFades[i],
                   child: _OptionTile(
@@ -391,7 +379,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
               ),
             ),
 
-            // ── Explanation (after answer) ────────────────────
+            // â”€â”€ Explanation (after answer) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 350),
               child: _answered && _current.explanation != null
@@ -411,11 +399,11 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
   }
 }
 
-// ─── Option state ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Option state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 enum _OptionState { idle, correct, wrong, dimmed }
 
-// ─── Quiz Top Bar ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Quiz Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _QuizTopBar extends StatelessWidget {
   const _QuizTopBar({
@@ -457,7 +445,7 @@ class _QuizTopBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.border),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.close_rounded,
                 size: 18,
                 color: AppColors.textPrimary,
@@ -490,7 +478,7 @@ class _QuizTopBar extends StatelessWidget {
               children: [
                 AnimatedBuilder(
                   animation: timerCtrl,
-                  builder: (_, __) => CircularProgressIndicator(
+                  builder: (_, _) => CircularProgressIndicator(
                     value: 1 - timerCtrl.value,
                     strokeWidth: 3.5,
                     color: _timerColor,
@@ -512,7 +500,7 @@ class _QuizTopBar extends StatelessWidget {
   }
 }
 
-// ─── Quiz Progress Bar ────────────────────────────────────────────────────────
+// â”€â”€â”€ Quiz Progress Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _QuizProgressBar extends StatelessWidget {
   const _QuizProgressBar({
@@ -559,7 +547,7 @@ class _QuizProgressBar extends StatelessWidget {
                 boxShadow: i == current
                     ? [
                         BoxShadow(
-                          color: AppColors.amber.withOpacity(0.5),
+                          color: AppColors.amber.withOpacityCompat(0.5),
                           blurRadius: 6,
                         ),
                       ]
@@ -573,7 +561,7 @@ class _QuizProgressBar extends StatelessWidget {
   }
 }
 
-// ─── Question Block ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Question Block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _QuestionBlock extends StatelessWidget {
   const _QuestionBlock({required this.question, required this.index});
@@ -617,7 +605,7 @@ class _QuestionBlock extends StatelessWidget {
   }
 }
 
-// ─── Option Tile ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Option Tile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _OptionTile extends StatefulWidget {
   const _OptionTile({
@@ -662,16 +650,16 @@ class _OptionTileState extends State<_OptionTile>
   // Resolve colors per state
   Color get _bgColor => switch (widget.state) {
     _OptionState.idle => AppColors.bgCard,
-    _OptionState.correct => AppColors.success.withOpacity(0.10),
-    _OptionState.wrong => AppColors.error.withOpacity(0.10),
-    _OptionState.dimmed => AppColors.bgCard.withOpacity(0.4),
+    _OptionState.correct => AppColors.success.withOpacityCompat(0.10),
+    _OptionState.wrong => AppColors.error.withOpacityCompat(0.10),
+    _OptionState.dimmed => AppColors.bgCard.withOpacityCompat(0.4),
   };
 
   Color get _borderColor => switch (widget.state) {
     _OptionState.idle => AppColors.border,
-    _OptionState.correct => AppColors.success.withOpacity(0.5),
-    _OptionState.wrong => AppColors.error.withOpacity(0.5),
-    _OptionState.dimmed => AppColors.border.withOpacity(0.3),
+    _OptionState.correct => AppColors.success.withOpacityCompat(0.5),
+    _OptionState.wrong => AppColors.error.withOpacityCompat(0.5),
+    _OptionState.dimmed => AppColors.border.withOpacityCompat(0.3),
   };
 
   Color get _labelColor => switch (widget.state) {
@@ -685,7 +673,7 @@ class _OptionTileState extends State<_OptionTile>
     _OptionState.idle => AppColors.bgSurface,
     _OptionState.correct => AppColors.success,
     _OptionState.wrong => AppColors.error,
-    _OptionState.dimmed => AppColors.bgSurface.withOpacity(0.4),
+    _OptionState.dimmed => AppColors.bgSurface.withOpacityCompat(0.4),
   };
 
   Color get _indexColor => switch (widget.state) {
@@ -695,12 +683,12 @@ class _OptionTileState extends State<_OptionTile>
   };
 
   Widget get _trailingIcon => switch (widget.state) {
-    _OptionState.correct => const Icon(
+    _OptionState.correct => Icon(
       Icons.check_circle_rounded,
       color: AppColors.success,
       size: 22,
     ),
-    _OptionState.wrong => const Icon(
+    _OptionState.wrong => Icon(
       Icons.cancel_rounded,
       color: AppColors.error,
       size: 22,
@@ -711,7 +699,7 @@ class _OptionTileState extends State<_OptionTile>
   List<BoxShadow> get _shadows => switch (widget.state) {
     _OptionState.correct => [
       BoxShadow(
-        color: AppColors.success.withOpacity(0.2),
+        color: AppColors.success.withOpacityCompat(0.2),
         blurRadius: 16,
         spreadRadius: -2,
         offset: const Offset(0, 6),
@@ -719,7 +707,7 @@ class _OptionTileState extends State<_OptionTile>
     ],
     _OptionState.wrong => [
       BoxShadow(
-        color: AppColors.error.withOpacity(0.2),
+        color: AppColors.error.withOpacityCompat(0.2),
         blurRadius: 16,
         spreadRadius: -2,
         offset: const Offset(0, 6),
@@ -809,7 +797,7 @@ class _OptionTileState extends State<_OptionTile>
   }
 }
 
-// ─── Explanation Bar ──────────────────────────────────────────────────────────
+// â”€â”€â”€ Explanation Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _ExplanationBar extends StatelessWidget {
   const _ExplanationBar({
@@ -827,9 +815,9 @@ class _ExplanationBar extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(24, 8, 24, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withOpacityCompat(0.08),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withOpacity(0.25), width: 1),
+        border: Border.all(color: color.withOpacityCompat(0.25), width: 1),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -866,7 +854,7 @@ class _ExplanationBar extends StatelessWidget {
   }
 }
 
-// ─── Results Screen ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Results Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _ResultsScreen extends StatefulWidget {
   const _ResultsScreen({
@@ -915,6 +903,44 @@ class _ResultsScreenState extends State<_ResultsScreen>
     return AppColors.error;
   }
 
+  void _exportPdf() {
+    final summary = StringBuffer()
+      ..writeln('Score: $_correct/${widget.questions.length} ($_grade)')
+      ..writeln('Timed out: $_timedOut')
+      ..writeln('Wrong: $_wrong')
+      ..writeln('')
+      ..writeln('Question Review:')
+      ..writeln('');
+
+    for (var i = 0; i < widget.questions.length; i++) {
+      final q = widget.questions[i];
+      final ans = widget.answers[i];
+      final correct = q.options[q.correctIndex];
+      final yourAnswer = ans == null ? 'Timed out' : q.options[ans];
+      summary
+        ..writeln('${i + 1}. ${q.question}')
+        ..writeln('Correct: $correct')
+        ..writeln('Your answer: $yourAnswer')
+        ..writeln('');
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PdfPreviewScreen(
+          title: 'Quiz Results',
+          subtitle: 'Score $_correct/${widget.questions.length} â€¢ Grade $_grade',
+          body: summary.toString(),
+          bullets: [
+            'Correct: $_correct',
+            'Wrong: $_wrong',
+            'Timed out: $_timedOut',
+          ],
+          footer: 'Generated by PeckPapers (local device)',
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -943,7 +969,7 @@ class _ResultsScreenState extends State<_ResultsScreen>
           child: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // ── Score hero ──────────────────────────────────
+              // â”€â”€ Score hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
@@ -960,7 +986,7 @@ class _ResultsScreenState extends State<_ResultsScreen>
 
               const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-              // ── Stat chips ───────────────────────────────────
+              // â”€â”€ Stat chips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -999,7 +1025,7 @@ class _ResultsScreenState extends State<_ResultsScreen>
 
               const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-              // ── Review header ────────────────────────────────
+              // â”€â”€ Review header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -1009,7 +1035,7 @@ class _ResultsScreenState extends State<_ResultsScreen>
 
               const SliverToBoxAdapter(child: SizedBox(height: 14)),
 
-              // ── Answer review list ───────────────────────────
+              // â”€â”€ Answer review list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               SliverList(
                 delegate: SliverChildBuilderDelegate((ctx, i) {
                   final q = widget.questions[i];
@@ -1031,12 +1057,19 @@ class _ResultsScreenState extends State<_ResultsScreen>
 
               const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-              // ── Action buttons ───────────────────────────────
+              // â”€â”€ Action buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
                   child: Column(
                     children: [
+                      PeckButton(
+                        label: 'Export PDF',
+                        onPressed: _exportPdf,
+                        variant: PeckButtonVariant.violet,
+                        icon: const Icon(Icons.picture_as_pdf_rounded),
+                      ),
+                      const SizedBox(height: 12),
                       PeckButton(
                         label: 'Try Again',
                         onPressed: widget.onRetry,
@@ -1062,7 +1095,7 @@ class _ResultsScreenState extends State<_ResultsScreen>
   }
 }
 
-// ─── Score Hero ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Score Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _ScoreHero extends StatelessWidget {
   const _ScoreHero({
@@ -1099,7 +1132,7 @@ class _ScoreHero extends StatelessWidget {
             children: [
               AnimatedBuilder(
                 animation: scoreArc,
-                builder: (_, __) => CircularProgressIndicator(
+                builder: (_, _) => CircularProgressIndicator(
                   value: scoreRatio * scoreArc.value,
                   strokeWidth: 10,
                   color: gradeColor,
@@ -1131,9 +1164,9 @@ class _ScoreHero extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
             decoration: BoxDecoration(
-              color: gradeColor.withOpacity(0.10),
+              color: gradeColor.withOpacityCompat(0.10),
               borderRadius: BorderRadius.circular(100),
-              border: Border.all(color: gradeColor.withOpacity(0.25), width: 1),
+              border: Border.all(color: gradeColor.withOpacityCompat(0.25), width: 1),
             ),
             child: Text(
               '${(scoreRatio * 100).toInt()}% Score',
@@ -1146,7 +1179,7 @@ class _ScoreHero extends StatelessWidget {
   }
 }
 
-// ─── Result Chip ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Result Chip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _ResultChip extends StatelessWidget {
   const _ResultChip({
@@ -1165,9 +1198,9 @@ class _ResultChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withOpacityCompat(0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.2), width: 1),
+        border: Border.all(color: color.withOpacityCompat(0.2), width: 1),
       ),
       child: Column(
         children: [
@@ -1181,7 +1214,7 @@ class _ResultChip extends StatelessWidget {
   }
 }
 
-// ─── Review Card ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Review Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _ReviewCard extends StatefulWidget {
   const _ReviewCard({
@@ -1225,9 +1258,9 @@ class _ReviewCardState extends State<_ReviewCard> {
         curve: Curves.easeOut,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: _accentColor.withOpacity(0.05),
+          color: _accentColor.withOpacityCompat(0.05),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: _accentColor.withOpacity(0.2), width: 1),
+          border: Border.all(color: _accentColor.withOpacityCompat(0.2), width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1239,7 +1272,7 @@ class _ReviewCardState extends State<_ReviewCard> {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: _accentColor.withOpacity(0.12),
+                    color: _accentColor.withOpacityCompat(0.12),
                     borderRadius: BorderRadius.circular(9),
                   ),
                   child: Icon(_icon, color: _accentColor, size: 16),
@@ -1267,7 +1300,7 @@ class _ReviewCardState extends State<_ReviewCard> {
             // Expanded detail
             if (_expanded) ...[
               const SizedBox(height: 14),
-              const Divider(height: 1, color: AppColors.border),
+              Divider(height: 1, color: AppColors.border),
               const SizedBox(height: 14),
 
               // Correct answer
@@ -1311,7 +1344,7 @@ class _ReviewCardState extends State<_ReviewCard> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.info_outline_rounded,
                         color: AppColors.textTertiary,
                         size: 14,
@@ -1357,7 +1390,7 @@ class _ReviewRow extends StatelessWidget {
           height: 20,
           margin: const EdgeInsets.only(top: 1),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.12),
+            color: color.withOpacityCompat(0.12),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Icon(icon, color: color, size: 12),
@@ -1383,3 +1416,4 @@ class _ReviewRow extends StatelessWidget {
     );
   }
 }
+

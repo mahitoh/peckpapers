@@ -1,4 +1,4 @@
-// lib/core/widgets/section_header.dart
+﻿// lib/core/widgets/section_header.dart
 
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
@@ -39,7 +39,7 @@ class SectionHeader extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 2),
-                  const Icon(
+                  Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 11,
                     color: AppColors.amber,
@@ -52,3 +52,4 @@ class SectionHeader extends StatelessWidget {
     );
   }
 }
+

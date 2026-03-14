@@ -1,0 +1,30 @@
+﻿```mermaid
+classDiagram
+  class OnboardingScreen <<Implemented>>
+  class MainShell <<Implemented>>
+  class HomeScreen <<Implemented>>
+  class LibraryScreen <<Implemented>>
+  class ScannerScreen <<Implemented>>
+  class FlashcardsScreen <<Implemented>>
+  class QuizScreen <<Implemented>>
+  class AnalyticsScreen <<Implemented>>
+  class SettingsScreen <<Implemented>>
+  class PdfPreviewScreen <<Implemented>>
+
+  class AuthScreen <<NotImplemented>>
+  class DocumentDetailScreen <<NotImplemented>>
+  class OcrPipeline <<NotImplemented>>
+  class PdfGenerationCore <<NotImplemented>>
+  class FlashcardGenerator <<NotImplemented>>
+  class QuizGenerator <<NotImplemented>>
+  class CloudSync <<NotImplemented>>
+
+  MainShell --> HomeScreen
+  MainShell --> LibraryScreen
+  MainShell --> ScannerScreen
+  MainShell --> FlashcardsScreen
+  MainShell --> AnalyticsScreen
+  HomeScreen --> SettingsScreen
+  ScannerScreen --> PdfPreviewScreen
+  QuizScreen --> PdfPreviewScreen
+```

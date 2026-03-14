@@ -1,4 +1,4 @@
-// lib/features/shell/main_shell.dart
+﻿// lib/features/shell/main_shell.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +11,7 @@ import '../scanner/scanner_screen.dart';
 import '../flashcards/flashcards_screen.dart';
 import '../analytics/analytics_screen.dart';
 
-// ─── Nav item model ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Nav item model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _NavItem {
   const _NavItem({
@@ -52,7 +52,7 @@ const _navItems = [
   ),
 ];
 
-// ─── Shell ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -63,7 +63,6 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   int _currentTab = 0;
-  int _previousTab = 0;
 
   // One animation controller per tab for indicator
   late List<AnimationController> _indicatorCtrls;
@@ -72,16 +71,12 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   // Page transition
   late AnimationController _pageCtrl;
   late Animation<double> _pageFade;
-  late Animation<Offset> _pageSlide;
-
-  // Scanner shown as modal — not a tab
-  bool _scannerOpen = false;
 
   @override
   void initState() {
     super.initState();
 
-    // ── Tab indicator animations ──────────────────────────────
+    // â”€â”€ Tab indicator animations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     _indicatorCtrls = List.generate(
       _navItems.length,
       (_) => AnimationController(
@@ -101,32 +96,29 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
     // Activate first tab
     _indicatorCtrls[0].forward();
 
-    // ── Page transition ───────────────────────────────────────
+    // â”€â”€ Page transition â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     _pageCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 320),
     );
     _pageFade = CurvedAnimation(parent: _pageCtrl, curve: Curves.easeOut);
-    _pageSlide = Tween<Offset>(
-      begin: const Offset(0.03, 0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _pageCtrl, curve: Curves.easeOutCubic));
-
     _pageCtrl.forward();
   }
 
   @override
   void dispose() {
-    for (final ctrl in _indicatorCtrls) ctrl.dispose();
+    for (final ctrl in _indicatorCtrls) {
+      ctrl.dispose();
+    }
     _pageCtrl.dispose();
     super.dispose();
   }
 
-  // ── Switch tab ────────────────────────────────────────────────────────────────
+  // â”€â”€ Switch tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   void _switchTab(int index) {
     if (index == 2) {
-      // Centre button → open scanner as modal
+      // Centre button â†’ open scanner as modal
       _openScanner();
       return;
     }
@@ -137,10 +129,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
     // Deactivate old indicator
     _indicatorCtrls[_currentTab].reverse();
 
-    setState(() {
-      _previousTab = _currentTab;
-      _currentTab = index;
-    });
+    setState(() => _currentTab = index);
 
     // Activate new indicator
     _indicatorCtrls[index].forward();
@@ -150,7 +139,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
     _pageCtrl.forward();
   }
 
-  // ── Open scanner ──────────────────────────────────────────────────────────────
+  // â”€â”€ Open scanner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   void _openScanner() {
     HapticFeedback.mediumImpact();
@@ -159,7 +148,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
         opaque: false,
         barrierColor: Colors.black87,
         transitionDuration: const Duration(milliseconds: 380),
-        pageBuilder: (_, animation, __) => FadeTransition(
+        pageBuilder: (_, animation, _) => FadeTransition(
           opacity: animation,
           child: ScannerScreen(
             onSaved: () => Navigator.of(context).pop(),
@@ -170,7 +159,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
     );
   }
 
-  // ── Build screen for index ────────────────────────────────────────────────────
+  // â”€â”€ Build screen for index â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildScreen(int index) {
     return switch (index) {
@@ -192,13 +181,15 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    // Force dark status bar icons
+    // Match status bar to current theme
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
+        statusBarIconBrightness:
+            AppColors.isDark ? Brightness.light : Brightness.dark,
         systemNavigationBarColor: AppColors.bgSurface,
-        systemNavigationBarIconBrightness: Brightness.light,
+        systemNavigationBarIconBrightness:
+            AppColors.isDark ? Brightness.light : Brightness.dark,
       ),
     );
 
@@ -207,7 +198,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
       extendBody: true, // content goes under nav bar
       body: Stack(
         children: [
-          // ── Screens kept alive ───────────────────────────────
+          // â”€â”€ Screens kept alive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           // Use IndexedStack so all screens stay mounted
           // (scroll positions, state preserved when switching tabs)
           IndexedStack(
@@ -221,7 +212,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
             ],
           ),
 
-          // ── Page fade/slide overlay ──────────────────────────
+          // â”€â”€ Page fade/slide overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Positioned.fill(
             child: IgnorePointer(
               child: FadeTransition(
@@ -242,7 +233,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   }
 }
 
-// ─── Keep Alive Screen ────────────────────────────────────────────────────────
+// â”€â”€â”€ Keep Alive Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Wraps each screen so IndexedStack never rebuilds them
 
 class _KeepAliveScreen extends StatefulWidget {
@@ -265,7 +256,7 @@ class _KeepAliveScreenState extends State<_KeepAliveScreen>
   }
 }
 
-// ─── Custom Nav Bar ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Custom Nav Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _PeckNavBar extends StatelessWidget {
   const _PeckNavBar({
@@ -281,17 +272,15 @@ class _PeckNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomPad = MediaQuery.of(context).padding.bottom;
-
     return Container(
       decoration: BoxDecoration(
         color: AppColors.bgSurface,
-        border: const Border(
+        border: Border(
           top: BorderSide(color: AppColors.border, width: 1),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.4),
+            color: Colors.black.withOpacityCompat(0.4),
             blurRadius: 24,
             offset: const Offset(0, -8),
           ),
@@ -335,7 +324,7 @@ class _PeckNavBar extends StatelessWidget {
   }
 }
 
-// ─── Nav Bar Item ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Nav Bar Item â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _NavBarItem extends StatelessWidget {
   const _NavBarItem({
@@ -407,7 +396,7 @@ class _NavBarItem extends StatelessWidget {
   }
 }
 
-// ─── Centre Scan Button ───────────────────────────────────────────────────────
+// â”€â”€â”€ Centre Scan Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _CentreNavBtn extends StatefulWidget {
   const _CentreNavBtn({required this.scales, required this.index});
@@ -470,3 +459,4 @@ class _CentreNavBtnState extends State<_CentreNavBtn>
     );
   }
 }
+
