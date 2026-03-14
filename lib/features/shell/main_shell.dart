@@ -75,7 +75,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   late Animation<Offset> _pageSlide;
 
   // Scanner shown as modal — not a tab
-  bool _scannerOpen = false;
+  final bool _scannerOpen = false;
 
   @override
   void initState() {
@@ -117,7 +117,9 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    for (final ctrl in _indicatorCtrls) ctrl.dispose();
+    for (final ctrl in _indicatorCtrls) {
+      ctrl.dispose();
+    }
     _pageCtrl.dispose();
     super.dispose();
   }
@@ -159,7 +161,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
         opaque: false,
         barrierColor: Colors.black87,
         transitionDuration: const Duration(milliseconds: 380),
-        pageBuilder: (_, animation, __) => FadeTransition(
+        pageBuilder: (_, animation, _) => FadeTransition(
           opacity: animation,
           child: ScannerScreen(
             onSaved: () => Navigator.of(context).pop(),
@@ -192,13 +194,15 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    // Force dark status bar icons
+    // Match status bar to current theme
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
+        statusBarIconBrightness:
+            AppColors.isDark ? Brightness.light : Brightness.dark,
         systemNavigationBarColor: AppColors.bgSurface,
-        systemNavigationBarIconBrightness: Brightness.light,
+        systemNavigationBarIconBrightness:
+            AppColors.isDark ? Brightness.light : Brightness.dark,
       ),
     );
 

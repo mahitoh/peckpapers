@@ -156,7 +156,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             left: -size.width * 0.25,
             child: AnimatedBuilder(
               animation: _pulseAnim,
-              builder: (_, __) => Opacity(
+              builder: (_, _) => Opacity(
                 opacity: _pulseAnim.value * 0.5,
                 child: Container(
                   width: size.width * 1.5,

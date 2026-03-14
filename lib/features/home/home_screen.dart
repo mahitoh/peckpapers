@@ -1,8 +1,10 @@
 // lib/features/home/home_screen.dart
 
 import 'package:flutter/material.dart';
+import '../../core/settings/app_settings_scope.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../settings/settings_screen.dart';
 
 // ─── Models ─────────────────────────────────────────────────────────────────
 
@@ -72,7 +74,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedTab = 0; // 0 = Today, 1 = Calendar
-  bool _isDarkMode = false;
 
   String get _greeting {
     final hour = DateTime.now().hour;
@@ -538,6 +539,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ─── Drawer ─────────────────────────────────────────────────────────────────
 
   Widget _buildDrawer() {
+    final settings = AppSettingsScope.of(context);
     return Drawer(
       backgroundColor: AppColors.bgBase,
       child: Column(
@@ -601,14 +603,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Dark Mode',
                     style: AppTextStyles.bodyMD.copyWith(color: AppColors.textPrimary),
                   ),
-                  value: _isDarkMode,
+                  value: settings.isDark,
                   onChanged: (value) {
-                    setState(() {
-                      _isDarkMode = value;
-                    });
-                    // TODO: Implement actual theme toggle
+                    settings.setThemeMode(
+                      value ? ThemeMode.dark : ThemeMode.light,
+                    );
                   },
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
                 const Divider(),
                 ListTile(
@@ -619,6 +620,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   onTap: () {
                     Navigator.pop(context);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const SettingsScreen(),
+                      ),
+                    );
                   },
                 ),
                 ListTile(

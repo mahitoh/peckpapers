@@ -520,7 +520,7 @@ class _FlipCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: flipAnim,
-      builder: (_, __) {
+      builder: (_, _) {
         final angle = flipAnim.value * math.pi;
         final isBack = angle > math.pi / 2;
 
@@ -925,7 +925,7 @@ class _FinishSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),

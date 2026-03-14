@@ -365,7 +365,7 @@ class _ActivityChartCard extends StatelessWidget {
             height: 140,
             child: AnimatedBuilder(
               animation: anim,
-              builder: (_, __) => CustomPaint(
+              builder: (_, _) => CustomPaint(
                 size: const Size(double.infinity, 140),
                 painter: _BarChartPainter(
                   data: _weekActivity,
@@ -536,7 +536,7 @@ class _StreakTimeRow extends StatelessWidget {
                     final done = i < 6;
                     return AnimatedBuilder(
                       animation: anim,
-                      builder: (_, __) => AnimatedContainer(
+                      builder: (_, _) => AnimatedContainer(
                         duration: Duration(milliseconds: 300 + i * 60),
                         width: 28,
                         height: 28,
@@ -610,7 +610,7 @@ class _StreakTimeRow extends StatelessWidget {
                       children: [
                         AnimatedBuilder(
                           animation: anim,
-                          builder: (_, __) => CircularProgressIndicator(
+                          builder: (_, _) => CircularProgressIndicator(
                             value: 0.67 * anim.value,
                             strokeWidth: 7,
                             color: AppColors.violet,
@@ -729,7 +729,7 @@ class _SubjectMasteryRow extends StatelessWidget {
               ),
               AnimatedBuilder(
                 animation: anim,
-                builder: (_, __) => FractionallySizedBox(
+                builder: (_, _) => FractionallySizedBox(
                   widthFactor: subject.mastery * anim.value,
                   child: Container(
                     height: 6,
@@ -929,7 +929,7 @@ class _WorldRankCard extends StatelessWidget {
               height: 60,
               child: AnimatedBuilder(
                 animation: anim,
-                builder: (_, __) => CustomPaint(
+                builder: (_, _) => CustomPaint(
                   painter: _SparklinePainter(progress: anim.value),
                 ),
               ),

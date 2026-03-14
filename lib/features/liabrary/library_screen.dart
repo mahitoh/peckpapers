@@ -654,7 +654,7 @@ class _SearchField extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         children: [
-          const Icon(Icons.search_rounded, color: AppColors.amber, size: 18),
+          Icon(Icons.search_rounded, color: AppColors.amber, size: 18),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
@@ -692,7 +692,7 @@ class _SubjectChips extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 24),
         itemCount: _subjects.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
           final s = _subjects[i];
           final isSelected = s == selected;
@@ -1193,7 +1193,7 @@ class _SortSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
