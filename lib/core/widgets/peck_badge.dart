@@ -1,4 +1,4 @@
-// lib/core/widgets/peck_badge.dart
+﻿// lib/core/widgets/peck_badge.dart
 
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
@@ -7,14 +7,14 @@ import '../theme/app_text_styles.dart';
 enum BadgeStyle { filled, outline, subtle }
 
 class PeckBadge extends StatelessWidget {
-  const PeckBadge({
+  PeckBadge({
     super.key,
     required this.label,
-    this.color = AppColors.amber,
+    Color? color,
     this.style = BadgeStyle.subtle,
     this.icon,
     this.fontSize = 10.0,
-  });
+  }) : color = color ?? AppColors.amber;
 
   final String label;
   final Color color;
@@ -25,7 +25,7 @@ class PeckBadge extends StatelessWidget {
   Color get _bg => switch (style) {
     BadgeStyle.filled => color,
     BadgeStyle.outline => Colors.transparent,
-    BadgeStyle.subtle => color.withOpacity(0.12),
+    BadgeStyle.subtle => color.withOpacityCompat(0.12),
   };
 
   Color get _textColor => switch (style) {
@@ -70,3 +70,4 @@ class PeckBadge extends StatelessWidget {
     );
   }
 }
+

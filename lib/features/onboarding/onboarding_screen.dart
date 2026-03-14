@@ -1,12 +1,11 @@
-// lib/features/onboarding/onboarding_screen.dart
+﻿// lib/features/onboarding/onboarding_screen.dart
 
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_button.dart';
-import '../../core/widgets/glow_container.dart';
 
-// ─── Data Model ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Data Model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _OnboardingPage {
   const _OnboardingPage({
@@ -30,14 +29,14 @@ class _OnboardingPage {
 
 enum _IllustrationStyle { scanner, flashcard, analytics }
 
-const _pages = [
+final _pages = [
   _OnboardingPage(
     icon: Icons.document_scanner_rounded,
     tag: 'SMART OCR',
     title: 'Scan. Digitize.',
     titleAccent: 'Learn.',
     subtitle:
-        'Point your camera at any handwritten or printed notes. PeckPapers reads them instantly — perfect lighting not required.',
+        'Point your camera at any handwritten or printed notes. PeckPapers reads them instantly â€” perfect lighting not required.',
     accentColor: AppColors.amber,
     illustration: _IllustrationStyle.scanner,
   ),
@@ -63,7 +62,7 @@ const _pages = [
   ),
 ];
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key, required this.onFinish});
@@ -150,7 +149,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       backgroundColor: AppColors.bgBase,
       body: Stack(
         children: [
-          // ── Background radial glow ──────────────────────────────
+          // â”€â”€ Background radial glow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Positioned(
             top: -size.height * 0.15,
             left: -size.width * 0.25,
@@ -165,7 +164,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        page.accentColor.withOpacity(0.18),
+                        page.accentColor.withOpacityCompat(0.18),
                         Colors.transparent,
                       ],
                     ),
@@ -175,7 +174,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ),
           ),
 
-          // ── Skip button ────────────────────────────────────────
+          // â”€â”€ Skip button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           SafeArea(
             child: Align(
               alignment: Alignment.topRight,
@@ -205,7 +204,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ),
           ),
 
-          // ── Page content ───────────────────────────────────────
+          // â”€â”€ Page content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           PageView.builder(
             controller: _pageController,
             physics: const NeverScrollableScrollPhysics(),
@@ -225,7 +224,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     children: [
                       SizedBox(height: size.height * 0.10),
 
-                      // ── Illustration area ──────────────────────
+                      // â”€â”€ Illustration area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       Center(
                         child: _IllustrationWidget(
                           style: page.illustration,
@@ -237,12 +236,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                       SizedBox(height: size.height * 0.06),
 
-                      // ── Tag pill ───────────────────────────────
+                      // â”€â”€ Tag pill â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       _TagPill(label: page.tag, color: page.accentColor),
 
                       const SizedBox(height: 16),
 
-                      // ── Title ──────────────────────────────────
+                      // â”€â”€ Title â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       RichText(
                         text: TextSpan(
                           style: AppTextStyles.displayLG,
@@ -260,7 +259,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                       const SizedBox(height: 16),
 
-                      // ── Subtitle ───────────────────────────────
+                      // â”€â”€ Subtitle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       Text(
                         page.subtitle,
                         style: AppTextStyles.bodyLG.copyWith(height: 1.65),
@@ -268,7 +267,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                       const Spacer(),
 
-                      // ── Dots ───────────────────────────────────
+                      // â”€â”€ Dots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       Center(
                         child: _DotRow(
                           count: _pages.length,
@@ -279,7 +278,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                       const SizedBox(height: 28),
 
-                      // ── CTA button ────────────────────────────
+                      // â”€â”€ CTA button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
                         child: PeckButton(
@@ -297,7 +296,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                       const SizedBox(height: 12),
 
-                      // ── Secondary ghost action ─────────────────
+                      // â”€â”€ Secondary ghost action â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       if (!isLast)
                         Center(
                           child: TextButton(
@@ -324,7 +323,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 }
 
-// ─── Dot Row ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Dot Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _DotRow extends StatelessWidget {
   const _DotRow({
@@ -359,7 +358,7 @@ class _DotRow extends StatelessWidget {
   }
 }
 
-// ─── Tag Pill ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Tag Pill â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _TagPill extends StatelessWidget {
   const _TagPill({required this.label, required this.color});
@@ -372,9 +371,9 @@ class _TagPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withOpacityCompat(0.12),
         borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: color.withOpacity(0.3), width: 1),
+        border: Border.all(color: color.withOpacityCompat(0.3), width: 1),
       ),
       child: Text(
         label,
@@ -384,7 +383,7 @@ class _TagPill extends StatelessWidget {
   }
 }
 
-// ─── Illustration Widget ──────────────────────────────────────────────────────
+// â”€â”€â”€ Illustration Widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _IllustrationWidget extends StatelessWidget {
   const _IllustrationWidget({
@@ -412,7 +411,7 @@ class _IllustrationWidget extends StatelessWidget {
           border: Border.all(color: AppColors.border, width: 1),
           boxShadow: [
             BoxShadow(
-              color: accentColor.withOpacity(0.12 * pulseAnim.value),
+              color: accentColor.withOpacityCompat(0.12 * pulseAnim.value),
               blurRadius: 60,
               spreadRadius: 10,
             ),
@@ -440,7 +439,7 @@ class _IllustrationWidget extends StatelessWidget {
   }
 }
 
-// ── Scanner illustration ──────────────────────────────────────────────────────
+// â”€â”€ Scanner illustration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _ScannerIllustration extends StatelessWidget {
   const _ScannerIllustration({required this.color, required this.size});
@@ -477,7 +476,7 @@ class _ScannerIllustration extends StatelessWidget {
                   child: Container(
                     height: 6,
                     decoration: BoxDecoration(
-                      color: i == 0 ? color.withOpacity(0.6) : AppColors.border,
+                      color: i == 0 ? color.withOpacityCompat(0.6) : AppColors.border,
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
@@ -502,7 +501,7 @@ class _ScannerIllustration extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(2),
                 boxShadow: [
-                  BoxShadow(color: color.withOpacity(0.8), blurRadius: 8),
+                  BoxShadow(color: color.withOpacityCompat(0.8), blurRadius: 8),
                 ],
               ),
             ),
@@ -567,7 +566,7 @@ class _BracketPainter extends CustomPainter {
   bool shouldRepaint(_BracketPainter old) => old.color != color;
 }
 
-// ── Flashcard illustration ────────────────────────────────────────────────────
+// â”€â”€ Flashcard illustration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _FlashcardIllustration extends StatelessWidget {
   const _FlashcardIllustration({required this.color, required this.size});
@@ -592,8 +591,8 @@ class _FlashcardIllustration extends StatelessWidget {
               child: _MiniCard(
                 width: s * 0.78,
                 height: s * 0.54,
-                color: color.withOpacity(0.10),
-                border: color.withOpacity(0.2),
+                color: color.withOpacityCompat(0.10),
+                border: color.withOpacityCompat(0.2),
               ),
             ),
           ),
@@ -604,7 +603,7 @@ class _FlashcardIllustration extends StatelessWidget {
               width: s * 0.78,
               height: s * 0.54,
               color: AppColors.bgCardHover,
-              border: color.withOpacity(0.35),
+              border: color.withOpacityCompat(0.35),
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
@@ -649,7 +648,7 @@ class _FlashcardIllustration extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: color,
                 boxShadow: [
-                  BoxShadow(color: color.withOpacity(0.5), blurRadius: 12),
+                  BoxShadow(color: color.withOpacityCompat(0.5), blurRadius: 12),
                 ],
               ),
               child: const Icon(
@@ -692,7 +691,7 @@ class _MiniCard extends StatelessWidget {
   );
 }
 
-// ── Analytics illustration ────────────────────────────────────────────────────
+// â”€â”€ Analytics illustration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _AnalyticsIllustration extends StatelessWidget {
   const _AnalyticsIllustration({required this.color, required this.size});
@@ -723,7 +722,7 @@ class _AnalyticsIllustration extends StatelessWidget {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
+                    color: color.withOpacityCompat(0.15),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -751,14 +750,14 @@ class _AnalyticsIllustration extends StatelessWidget {
                     width: s * 0.085,
                     height: s * 0.68 * bars[i],
                     decoration: BoxDecoration(
-                      color: isAccent ? color : color.withOpacity(0.22),
+                      color: isAccent ? color : color.withOpacityCompat(0.22),
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(5),
                       ),
                       boxShadow: isAccent
                           ? [
                               BoxShadow(
-                                color: color.withOpacity(0.5),
+                                color: color.withOpacityCompat(0.5),
                                 blurRadius: 8,
                               ),
                             ]
@@ -777,3 +776,4 @@ class _AnalyticsIllustration extends StatelessWidget {
     );
   }
 }
+

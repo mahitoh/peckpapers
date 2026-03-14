@@ -1,4 +1,4 @@
-// lib/core/widgets/peck_button.dart
+﻿// lib/core/widgets/peck_button.dart
 
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
@@ -83,7 +83,7 @@ class _PeckButtonState extends State<PeckButton>
   }
 
   BorderSide get _border => switch (widget.variant) {
-    PeckButtonVariant.secondary => const BorderSide(
+    PeckButtonVariant.secondary => BorderSide(
       color: AppColors.border,
       width: 1.5,
     ),
@@ -163,3 +163,4 @@ class _PeckButtonState extends State<PeckButton>
     );
   }
 }
+

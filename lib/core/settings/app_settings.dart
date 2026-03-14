@@ -86,3 +86,4 @@ class AppSettings extends ChangeNotifier {
     await prefs.setInt(_keyStudyMinutes, value);
   }
 }
+

@@ -6,13 +6,15 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:peckpapers/core/settings/app_settings.dart';
 import 'package:peckpapers/main.dart';
 
 void main() {
   testWidgets('App launches smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const PeckPapersApp());
+    final settings = AppSettings();
+    await settings.load();
+    await tester.pumpWidget(PeckPapersApp(settings: settings));
 
     // Verify that the app starts without crashing
     await tester.pump();

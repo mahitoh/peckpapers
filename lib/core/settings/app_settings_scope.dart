@@ -18,3 +18,4 @@ class AppSettingsScope extends InheritedNotifier<AppSettings> {
     return scope.notifier!;
   }
 }
+

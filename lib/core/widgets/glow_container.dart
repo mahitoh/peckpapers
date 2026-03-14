@@ -1,13 +1,13 @@
-// lib/core/widgets/glow_container.dart
+﻿// lib/core/widgets/glow_container.dart
 
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
 class GlowContainer extends StatelessWidget {
-  const GlowContainer({
+  GlowContainer({
     super.key,
     required this.child,
-    this.glowColor = AppColors.amber,
+    Color? glowColor,
     this.glowRadius = 80.0,
     this.glowOpacity = 0.35,
     this.padding,
@@ -16,7 +16,7 @@ class GlowContainer extends StatelessWidget {
     this.borderRadius,
     this.backgroundColor,
     this.border,
-  });
+  }) : glowColor = glowColor ?? AppColors.amber;
 
   final Widget child;
   final Color glowColor;
@@ -41,7 +41,7 @@ class GlowContainer extends StatelessWidget {
         border: border,
         boxShadow: [
           BoxShadow(
-            color: glowColor.withOpacity(glowOpacity),
+            color: glowColor.withOpacityCompat(glowOpacity),
             blurRadius: glowRadius,
             spreadRadius: glowRadius * 0.1,
           ),
@@ -52,18 +52,19 @@ class GlowContainer extends StatelessWidget {
   }
 }
 
-/// Circular glow container — for icon buttons, fab-style elements
+/// Circular glow container â€” for icon buttons, fab-style elements
 class GlowCircle extends StatelessWidget {
-  const GlowCircle({
+  GlowCircle({
     super.key,
     required this.child,
     required this.size,
-    this.glowColor = AppColors.amber,
-    this.fillColor = AppColors.amberDim,
+    Color? glowColor,
+    Color? fillColor,
     this.glowRadius = 40.0,
     this.glowOpacity = 0.4,
     this.onTap,
-  });
+  })  : glowColor = glowColor ?? AppColors.amber,
+        fillColor = fillColor ?? AppColors.amberDim;
 
   final Widget child;
   final double size;
@@ -85,7 +86,7 @@ class GlowCircle extends StatelessWidget {
           color: fillColor,
           boxShadow: [
             BoxShadow(
-              color: glowColor.withOpacity(glowOpacity),
+              color: glowColor.withOpacityCompat(glowOpacity),
               blurRadius: glowRadius,
               spreadRadius: glowRadius * 0.15,
             ),
@@ -96,3 +97,4 @@ class GlowCircle extends StatelessWidget {
     );
   }
 }
+

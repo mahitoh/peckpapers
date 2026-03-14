@@ -238,5 +238,6 @@ class AppTextStyles {
       base.copyWith(color: color);
 
   static TextStyle withOpacity(TextStyle base, double opacity) =>
-      base.copyWith(color: base.color?.withOpacity(opacity));
+      base.copyWith(color: base.color?.withOpacityCompat(opacity));
 }
+

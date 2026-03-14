@@ -1,4 +1,4 @@
-// lib/core/widgets/peck_card.dart
+﻿// lib/core/widgets/peck_card.dart
 
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
@@ -81,13 +81,13 @@ class _PeckCardState extends State<PeckCard>
             boxShadow: [
               if (effectiveGlow != null)
                 BoxShadow(
-                  color: effectiveGlow.withOpacity(0.25),
+                  color: effectiveGlow.withOpacityCompat(0.25),
                   blurRadius: 24,
                   spreadRadius: -4,
                   offset: const Offset(0, 8),
                 ),
               BoxShadow(
-                color: Colors.black.withOpacity(0.35),
+                color: Colors.black.withOpacityCompat(0.35),
                 blurRadius: 20,
                 spreadRadius: -6,
                 offset: const Offset(0, 10),
@@ -103,3 +103,4 @@ class _PeckCardState extends State<PeckCard>
     );
   }
 }
+

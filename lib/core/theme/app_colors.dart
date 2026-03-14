@@ -201,7 +201,7 @@ class AppColors {
   static LinearGradient get secondaryGradient => LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [secondary, secondary.withOpacity(0.7)],
+    colors: [secondary, secondary.withOpacityCompat(0.7)],
   );
 
   static LinearGradient get cardGradient => LinearGradient(
@@ -213,13 +213,13 @@ class AppColors {
   static LinearGradient get violetGradient => primaryGradient;
 
   static RadialGradient get primaryRadial => RadialGradient(
-    colors: [primary.withOpacity(0.20), primary.withOpacity(0.0)],
+    colors: [primary.withOpacityCompat(0.20), primary.withOpacityCompat(0.0)],
     radius: 0.8,
   );
 
   static List<BoxShadow> get cardShadow => [
     BoxShadow(
-      color: const Color(0xFF000000).withOpacity(isDark ? 0.35 : 0.08),
+      color: const Color(0xFF000000).withOpacityCompat(isDark ? 0.35 : 0.08),
       blurRadius: 16,
       spreadRadius: 0,
       offset: const Offset(0, 4),
@@ -228,7 +228,7 @@ class AppColors {
 
   static List<BoxShadow> get cardShadowStrong => [
     BoxShadow(
-      color: const Color(0xFF000000).withOpacity(isDark ? 0.45 : 0.12),
+      color: const Color(0xFF000000).withOpacityCompat(isDark ? 0.45 : 0.12),
       blurRadius: 24,
       spreadRadius: -2,
       offset: const Offset(0, 8),
@@ -237,7 +237,7 @@ class AppColors {
 
   static List<BoxShadow> get primaryShadow => [
     BoxShadow(
-      color: primary.withOpacity(isDark ? 0.40 : 0.30),
+      color: primary.withOpacityCompat(isDark ? 0.40 : 0.30),
       blurRadius: 20,
       spreadRadius: -4,
       offset: const Offset(0, 8),
@@ -246,7 +246,7 @@ class AppColors {
 
   static Color get amber => accentOrange;
   static Color get amberLight => accentOrange;
-  static Color get amberDim => accentOrange.withOpacity(0.18);
+  static Color get amberDim => accentOrange.withOpacityCompat(0.18);
   static Color get violet => primary;
   static Color get violetLight => primaryLight;
   static Color get violetDim => primaryDim;
@@ -254,19 +254,19 @@ class AppColors {
   static Color get scanner => accentOrange;
   static Color get scannerLight => accentOrange;
   static Color get scannerFrame => accentOrange;
-  static Color get scannerGlow => accentOrange.withOpacity(0.25);
-  static Color get scannerHighlight => accentOrange.withOpacity(0.45);
+  static Color get scannerGlow => accentOrange.withOpacityCompat(0.25);
+  static Color get scannerHighlight => accentOrange.withOpacityCompat(0.45);
   static Color get scannerLine => accentOrange;
 
   static LinearGradient get scannerGradient => LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [accentOrange, accentOrange.withOpacity(0.85)],
+    colors: [accentOrange, accentOrange.withOpacityCompat(0.85)],
   );
 
   static List<BoxShadow> get amberShadow => [
     BoxShadow(
-      color: accentOrange.withOpacity(isDark ? 0.50 : 0.35),
+      color: accentOrange.withOpacityCompat(isDark ? 0.50 : 0.35),
       blurRadius: 20,
       spreadRadius: -4,
       offset: const Offset(0, 8),
@@ -275,3 +275,10 @@ class AppColors {
 
   static List<BoxShadow> get violetShadow => primaryShadow;
 }
+extension ColorOpacityCompat on Color {
+  Color withOpacityCompat(double opacity) {
+    final alpha = (opacity * 255).round().clamp(0, 255);
+    return withValues(alpha: alpha);
+  }
+}
+

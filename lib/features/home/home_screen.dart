@@ -1,4 +1,4 @@
-// lib/features/home/home_screen.dart
+﻿// lib/features/home/home_screen.dart
 
 import 'package:flutter/material.dart';
 import '../../core/settings/app_settings_scope.dart';
@@ -6,7 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../settings/settings_screen.dart';
 
-// ─── Models ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Models â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _Task {
   const _Task({
@@ -25,9 +25,9 @@ class _Task {
   final bool completed;
 }
 
-const _mockTasks = [
+final _mockTasks = [
   _Task(
-    title: 'Calculus — Integration',
+    title: 'Calculus â€” Integration',
     subject: 'Mathematics',
     time: '8:30 AM',
     priority: 3,
@@ -52,7 +52,7 @@ const _mockTasks = [
   ),
 ];
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -73,14 +73,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedTab = 0; // 0 = Today, 1 = Calendar
-
-  String get _greeting {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  }
+  // Reserved for future schedule tabs
 
   @override
   Widget build(BuildContext context) {
@@ -91,35 +84,35 @@ class _HomeScreenState extends State<HomeScreen> {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // ── Header ──────────────────────────────────────────────
+            // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             SliverToBoxAdapter(
               child: _buildHeader(),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
-            // ── Promo Banner ────────────────────────────────────────
+            // â”€â”€ Promo Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             SliverToBoxAdapter(
               child: _buildPromoBanner(),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-            // ── Stats Row ───────────────────────────────────────────
+            // â”€â”€ Stats Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             SliverToBoxAdapter(
               child: _buildStatsRow(),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-            // ── Section Header ───────────────────────────────────────
+            // â”€â”€ Section Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             SliverToBoxAdapter(
               child: _buildSectionHeader('Your Schedule', 'See all'),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-            // ── Task List ────────────────────────────────────────────
+            // â”€â”€ Task List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (ctx, i) => _buildTaskCard(_mockTasks[i], i),
@@ -134,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ─── Header ────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildHeader() {
     return Padding(
@@ -184,56 +177,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ─── Toggle Tabs ───────────────────────────────────────────────────────────
+  // â”€â”€â”€ Toggle Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  Widget _buildToggleTabs() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        height: 44,
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: AppColors.bgSurface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border, width: 1),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: _buildTabButton('Today', 0),
-            ),
-            Expanded(
-              child: _buildTabButton('Calendar', 1),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildTabButton(String label, int index) {
-    final isSelected = _selectedTab == index;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedTab = index),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: AppTextStyles.buttonSM.copyWith(
-              color: isSelected ? Colors.white : AppColors.textSecondary,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ─── Promo Banner ────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Promo Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildPromoBanner() {
     return Padding(
@@ -257,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withOpacityCompat(0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Text(
@@ -337,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ─── Stats Row ─────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Stats Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildStatsRow() {
     return Padding(
@@ -390,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ─── Section Header ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Section Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildSectionHeader(String title, String action) {
     return Padding(
@@ -420,7 +367,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ─── Task Card ─────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Task Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildTaskCard(_Task task, int index) {
     return Padding(
@@ -458,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: task.color.withOpacity(0.3),
+                            color: task.color.withOpacityCompat(0.3),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -536,7 +483,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ─── Drawer ─────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Drawer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildDrawer() {
     final settings = AppSettingsScope.of(context);
@@ -645,3 +592,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
