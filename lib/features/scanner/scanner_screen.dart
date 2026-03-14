@@ -5,8 +5,6 @@ import 'package:camera/camera.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_button.dart';
-import '../../core/widgets/peck_badge.dart';
-import '../../core/widgets/glow_container.dart';
 
 // ─── Scanner states ───────────────────────────────────────────────────────────
 
@@ -372,7 +370,7 @@ class _ScanFrame extends StatelessWidget {
           // Animated scan line
           AnimatedBuilder(
             animation: scanLineAnim,
-            builder: (_, __) {
+            builder: (_, _) {
               final topPos = 16 + (height - 32) * scanLineAnim.value;
               return Positioned(
                 top: topPos,
@@ -387,7 +385,7 @@ class _ScanFrame extends StatelessWidget {
           if (isScanning)
             AnimatedBuilder(
               animation: scanLineAnim,
-              builder: (_, __) {
+              builder: (_, _) {
                 final splitY = 16 + (height - 32) * scanLineAnim.value;
                 return Positioned(
                   top: 16,

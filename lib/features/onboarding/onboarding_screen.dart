@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_button.dart';
-import '../../core/widgets/glow_container.dart';
 
 // ─── Data Model ───────────────────────────────────────────────────────────────
 
@@ -156,7 +155,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             left: -size.width * 0.25,
             child: AnimatedBuilder(
               animation: _pulseAnim,
-              builder: (_, __) => Opacity(
+              builder: (_, _) => Opacity(
                 opacity: _pulseAnim.value * 0.5,
                 child: Container(
                   width: size.width * 1.5,
