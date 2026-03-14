@@ -91,23 +91,17 @@ class _HomeScreenState extends State<HomeScreen> {
           physics: const BouncingScrollPhysics(),
           slivers: [
             // ── Header ──────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: _buildHeader(),
-            ),
+            SliverToBoxAdapter(child: _buildHeader()),
 
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
             // ── Promo Banner ────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: _buildPromoBanner(),
-            ),
+            SliverToBoxAdapter(child: _buildPromoBanner()),
 
             const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
             // ── Stats Row ───────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: _buildStatsRow(),
-            ),
+            SliverToBoxAdapter(child: _buildStatsRow()),
 
             const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
@@ -152,11 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.border, width: 1),
                 ),
-                child: Icon(
-                  Icons.menu,
-                  color: AppColors.textPrimary,
-                  size: 22,
-                ),
+                child: Icon(Icons.menu, color: AppColors.textPrimary, size: 22),
               ),
             ),
           ),
@@ -198,12 +188,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Row(
           children: [
-            Expanded(
-              child: _buildTabButton('Today', 0),
-            ),
-            Expanded(
-              child: _buildTabButton('Calendar', 1),
-            ),
+            Expanded(child: _buildTabButton('Today', 0)),
+            Expanded(child: _buildTabButton('Calendar', 1)),
           ],
         ),
       ),
@@ -254,7 +240,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(8),
@@ -297,11 +286,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              
+
               // Try it now button
               Flexible(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -343,19 +335,44 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          _buildStatCard('Due Today', '12', Icons.style_outlined, AppColors.primary),
+          _buildStatCard(
+            'Due Today',
+            '12',
+            Icons.style_outlined,
+            AppColors.primary,
+          ),
           const SizedBox(width: 12),
-          _buildStatCard('Streak', '7', Icons.local_fire_department_outlined, AppColors.accentOrange),
+          _buildStatCard(
+            'Streak',
+            '7',
+            Icons.local_fire_department_outlined,
+            AppColors.accentOrange,
+          ),
           const SizedBox(width: 12),
-          _buildStatCard('Total Scans', '48', Icons.document_scanner_outlined, AppColors.secondary),
+          _buildStatCard(
+            'Total Scans',
+            '48',
+            Icons.document_scanner_outlined,
+            AppColors.secondary,
+          ),
           const SizedBox(width: 12),
-          _buildStatCard('Mastery %', '72%', Icons.emoji_events_outlined, AppColors.accentGreen),
+          _buildStatCard(
+            'Mastery %',
+            '72%',
+            Icons.emoji_events_outlined,
+            AppColors.accentGreen,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -517,10 +534,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: task.completed ? AppColors.primary : Colors.transparent,
+                  color: task.completed
+                      ? AppColors.primary
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: task.completed ? AppColors.primary : AppColors.border,
+                    color: task.completed
+                        ? AppColors.primary
+                        : AppColors.border,
                     width: 2,
                   ),
                 ),
@@ -543,16 +564,16 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         children: [
           UserAccountsDrawerHeader(
-            decoration: BoxDecoration(
-              color: AppColors.bgSurface,
-            ),
+            decoration: BoxDecoration(color: AppColors.bgSurface),
             currentAccountPicture: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.border, width: 2),
               ),
               child: CircleAvatar(
-                backgroundImage: const NetworkImage('https://i.pravatar.cc/150?img=11'),
+                backgroundImage: const NetworkImage(
+                  'https://i.pravatar.cc/150?img=11',
+                ),
                 backgroundColor: AppColors.bgCard,
               ),
             ),
@@ -570,7 +591,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          
+
           Expanded(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -579,27 +600,39 @@ class _HomeScreenState extends State<HomeScreen> {
                   leading: Icon(Icons.person, color: AppColors.textPrimary),
                   title: Text(
                     'Profile',
-                    style: AppTextStyles.bodyMD.copyWith(color: AppColors.textPrimary),
+                    style: AppTextStyles.bodyMD.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   onTap: () {
                     Navigator.pop(context);
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.credit_card, color: AppColors.textPrimary),
+                  leading: Icon(
+                    Icons.credit_card,
+                    color: AppColors.textPrimary,
+                  ),
                   title: Text(
                     'Subscription',
-                    style: AppTextStyles.bodyMD.copyWith(color: AppColors.textPrimary),
+                    style: AppTextStyles.bodyMD.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   onTap: () {
                     Navigator.pop(context);
                   },
                 ),
                 SwitchListTile(
-                  secondary: Icon(Icons.dark_mode, color: AppColors.textPrimary),
+                  secondary: Icon(
+                    Icons.dark_mode,
+                    color: AppColors.textPrimary,
+                  ),
                   title: Text(
                     'Dark Mode',
-                    style: AppTextStyles.bodyMD.copyWith(color: AppColors.textPrimary),
+                    style: AppTextStyles.bodyMD.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   value: _isDarkMode,
                   onChanged: (value) {
@@ -608,14 +641,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     });
                     // TODO: Implement actual theme toggle
                   },
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
                 const Divider(),
                 ListTile(
                   leading: Icon(Icons.settings, color: AppColors.textPrimary),
                   title: Text(
                     'Settings',
-                    style: AppTextStyles.bodyMD.copyWith(color: AppColors.textPrimary),
+                    style: AppTextStyles.bodyMD.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   onTap: () {
                     Navigator.pop(context);
@@ -625,7 +660,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   leading: Icon(Icons.exit_to_app, color: AppColors.error),
                   title: Text(
                     'Logout',
-                    style: AppTextStyles.bodyMD.copyWith(color: AppColors.error),
+                    style: AppTextStyles.bodyMD.copyWith(
+                      color: AppColors.error,
+                    ),
                   ),
                   onTap: () {
                     Navigator.pop(context);

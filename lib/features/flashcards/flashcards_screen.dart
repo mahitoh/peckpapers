@@ -520,7 +520,7 @@ class _FlipCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: flipAnim,
-      builder: (_, __) {
+      builder: (_, _) {
         final angle = flipAnim.value * math.pi;
         final isBack = angle > math.pi / 2;
 

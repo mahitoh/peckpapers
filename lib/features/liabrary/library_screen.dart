@@ -6,7 +6,6 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_card.dart';
 import '../../core/widgets/peck_badge.dart';
-import '../../core/widgets/section_header.dart';
 import '../../core/widgets/glow_container.dart';
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
@@ -692,7 +691,7 @@ class _SubjectChips extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 24),
         itemCount: _subjects.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
           final s = _subjects[i];
           final isSelected = s == selected;

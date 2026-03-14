@@ -8,7 +8,6 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_badge.dart';
 import '../../core/widgets/peck_button.dart';
 import '../../core/widgets/glow_container.dart';
-import '../../core/widgets/peck_card.dart';
 
 // ─── Data models ──────────────────────────────────────────────────────────────
 
@@ -378,7 +377,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _current.options.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (_, _) => const SizedBox(height: 12),
                 itemBuilder: (_, i) => FadeTransition(
                   opacity: _optionFades[i],
                   child: _OptionTile(
@@ -490,7 +489,7 @@ class _QuizTopBar extends StatelessWidget {
               children: [
                 AnimatedBuilder(
                   animation: timerCtrl,
-                  builder: (_, __) => CircularProgressIndicator(
+                  builder: (_, _) => CircularProgressIndicator(
                     value: 1 - timerCtrl.value,
                     strokeWidth: 3.5,
                     color: _timerColor,
@@ -1099,7 +1098,7 @@ class _ScoreHero extends StatelessWidget {
             children: [
               AnimatedBuilder(
                 animation: scoreArc,
-                builder: (_, __) => CircularProgressIndicator(
+                builder: (_, _) => CircularProgressIndicator(
                   value: scoreRatio * scoreArc.value,
                   strokeWidth: 10,
                   color: gradeColor,
