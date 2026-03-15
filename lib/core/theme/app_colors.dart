@@ -275,10 +275,9 @@ class AppColors {
 
   static List<BoxShadow> get violetShadow => primaryShadow;
 }
+
 extension ColorOpacityCompat on Color {
   Color withOpacityCompat(double opacity) {
-    final alpha = (opacity * 255).round().clamp(0, 255);
-    return withValues(alpha: alpha);
+    return withValues(alpha: opacity);
   }
 }
-
