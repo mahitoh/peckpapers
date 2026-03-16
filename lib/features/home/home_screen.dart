@@ -7,6 +7,7 @@ import '../../core/settings/app_settings_scope.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../settings/settings_screen.dart';
+import '../profile/profile_screen.dart';
 
 // â”€â”€â”€ Models â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -117,13 +118,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // Reserved for future schedule tabs
+  static const int _statsLoopCount = 2000;
+  static const int _statsLoopBase = 1000;
   late final PageController _statsController;
   int _currentStat = 0;
 
   @override
   void initState() {
     super.initState();
-    _statsController = PageController(viewportFraction: 0.72);
+    _statsController = PageController(
+      viewportFraction: 0.55,
+      initialPage: _statsLoopBase,
+    );
   }
 
   @override
@@ -347,35 +353,44 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 150,
             child: PageView.builder(
               controller: _statsController,
-              itemCount: _stats.length,
-              onPageChanged: (index) => setState(() => _currentStat = index),
+              itemCount: _stats.length * _statsLoopCount,
+              onPageChanged: (index) =>
+                  setState(() => _currentStat = index % _stats.length),
               itemBuilder: (context, index) {
+                final statIndex = index % _stats.length;
                 return AnimatedBuilder(
                   animation: _statsController,
                   builder: (context, child) {
-                    final page = _statsController.hasClients
-                        ? (_statsController.page ?? _currentStat.toDouble())
-                        : _currentStat.toDouble();
-                    final delta = (page - index).abs().clamp(0.0, 1.0);
-                    final scale = lerpDouble(1.0, 0.86, delta) ?? 1.0;
-                    final blur = lerpDouble(0.0, 6.0, delta) ?? 0.0;
-                    final opacity = lerpDouble(1.0, 0.6, delta) ?? 1.0;
-                    final isActive = delta < 0.15;
+                final page = _statsController.hasClients
+                    ? (_statsController.page ?? _statsLoopBase.toDouble())
+                    : _statsLoopBase.toDouble();
+                final delta = (page - index).abs().clamp(0.0, 1.0);
+                final scale = lerpDouble(1.0, 0.82, delta) ?? 1.0;
+                final blur = lerpDouble(0.0, 12.0, delta) ?? 0.0;
+                final opacity = lerpDouble(1.0, 0.42, delta) ?? 1.0;
+                final yOffset = lerpDouble(0.0, 18.0, delta) ?? 0.0;
+                final isActive = delta < 0.12;
 
-                    return Center(
-                      child: Transform.scale(
-                        scale: scale,
-                        child: Opacity(
-                          opacity: opacity,
-                          child: ImageFiltered(
-                            imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-                            child: _buildStatCard(_stats[index], isActive: isActive),
+                return Center(
+                  child: Transform.translate(
+                    offset: Offset(0, yOffset),
+                    child: Transform.scale(
+                      scale: scale,
+                      child: Opacity(
+                        opacity: opacity,
+                        child: ImageFiltered(
+                          imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+                          child: _buildStatCard(
+                            _stats[statIndex],
+                            isActive: isActive,
                           ),
                         ),
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 );
+              },
+            );
               },
             ),
           ),
@@ -412,35 +427,60 @@ class _HomeScreenState extends State<HomeScreen> {
               ]
             : AppColors.cardShadow,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Stack(
         children: [
-          Container(
-            width: isActive ? 44 : 38,
-            height: isActive ? 44 : 38,
-            decoration: BoxDecoration(
-              color: stat.color.withOpacityCompat(0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(stat.icon, color: stat.color, size: isActive ? 24 : 22),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: isActive ? 44 : 38,
+                height: isActive ? 44 : 38,
+                decoration: BoxDecoration(
+                  color: stat.color.withOpacityCompat(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(stat.icon, color: stat.color, size: isActive ? 24 : 22),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                stat.value,
+                style: AppTextStyles.headingSM.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: isActive ? FontWeight.w800 : FontWeight.w700,
+                  fontSize: isActive ? 20 : 18,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                stat.label,
+                style: AppTextStyles.labelSM.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            stat.value,
-            style: AppTextStyles.headingSM.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: isActive ? FontWeight.w800 : FontWeight.w700,
-              fontSize: isActive ? 20 : 18,
+          if (!isActive)
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.white.withOpacityCompat(0.10),
+                          Colors.white.withOpacityCompat(0.03),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            stat.label,
-            style: AppTextStyles.labelSM.copyWith(
-              color: AppColors.textSecondary,
-              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-            ),
-          ),
         ],
       ),
     );
@@ -692,6 +732,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   onTap: () {
                     Navigator.pop(context);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                    );
                   },
                 ),
                 ListTile(

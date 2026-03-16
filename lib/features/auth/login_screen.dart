@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../core/auth/local_auth.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../shell/main_shell.dart';
 import 'auth_widgets.dart';
 import 'signup_screen.dart';
 
@@ -60,7 +62,22 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           const SizedBox(height: 12),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () async {
+              final email = _emailController.text.trim();
+              final password = _passwordController.text;
+              final ok = await LocalAuth.login(email, password);
+              if (!context.mounted) return;
+              if (ok) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const MainShell()),
+                  (_) => false,
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Invalid email or password')),
+                );
+              }
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,

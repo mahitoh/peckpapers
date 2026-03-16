@@ -145,6 +145,7 @@ class _LibraryScreenState extends State<LibraryScreen>
   final _searchFocus = FocusNode();
   bool _searchActive = false;
   String _query = '';
+  List<Document> _filteredDocs = const [];
 
   // Filters
   String _selectedSubject = 'All';
@@ -180,8 +181,15 @@ class _LibraryScreenState extends State<LibraryScreen>
     );
 
     _searchCtrl.addListener(() {
-      setState(() => _query = _searchCtrl.text);
+      final next = _searchCtrl.text;
+      if (next == _query) return;
+      setState(() {
+        _query = next;
+        _recomputeFiltered();
+      });
     });
+
+    _recomputeFiltered();
   }
 
   @override
@@ -213,6 +221,7 @@ class _LibraryScreenState extends State<LibraryScreen>
           _searchActive = false;
           _query = '';
           _searchCtrl.clear();
+          _recomputeFiltered();
         });
       }
     });
@@ -220,7 +229,11 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   // â”€â”€ Filter + sort docs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  List<Document> get _filtered {
+  void _recomputeFiltered() {
+    _filteredDocs = _applyFilters();
+  }
+
+  List<Document> _applyFilters() {
     var docs = List<Document>.from(_allDocs);
 
     // Subject filter
@@ -245,15 +258,17 @@ class _LibraryScreenState extends State<LibraryScreen>
           .toList();
     }
 
-    // Sort
-    docs.sort(
-      (a, b) => switch (_sortOption) {
-        _SortOption.recent => 0,
-        _SortOption.title => a.title.compareTo(b.title),
-        _SortOption.progress => b.progress.compareTo(a.progress),
-        _SortOption.cardCount => b.cardCount.compareTo(a.cardCount),
-      },
-    );
+    // Sort (skip for recent to avoid needless work)
+    if (_sortOption != _SortOption.recent) {
+      docs.sort(
+        (a, b) => switch (_sortOption) {
+          _SortOption.recent => 0,
+          _SortOption.title => a.title.compareTo(b.title),
+          _SortOption.progress => b.progress.compareTo(a.progress),
+          _SortOption.cardCount => b.cardCount.compareTo(a.cardCount),
+        },
+      );
+    }
 
     return docs;
   }
@@ -267,7 +282,10 @@ class _LibraryScreenState extends State<LibraryScreen>
       builder: (_) => _SortSheet(
         selected: _sortOption,
         onSelect: (opt) {
-          setState(() => _sortOption = opt);
+          setState(() {
+            _sortOption = opt;
+            _recomputeFiltered();
+          });
           Navigator.pop(context);
           _refreshList();
         },
@@ -301,7 +319,7 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   @override
   Widget build(BuildContext context) {
-    final docs = _filtered;
+    final docs = _filteredDocs;
 
     return Scaffold(
       backgroundColor: AppColors.bgBase,
@@ -329,6 +347,7 @@ class _LibraryScreenState extends State<LibraryScreen>
               showFavourites: _showFavouritesOnly,
               onFavouriteToggle: () => setState(() {
                 _showFavouritesOnly = !_showFavouritesOnly;
+                _recomputeFiltered();
                 _refreshList();
               }),
             ),
@@ -339,7 +358,10 @@ class _LibraryScreenState extends State<LibraryScreen>
             child: _SubjectChips(
               selected: _selectedSubject,
               onSelect: (s) {
-                setState(() => _selectedSubject = s);
+                setState(() {
+                  _selectedSubject = s;
+                  _recomputeFiltered();
+                });
                 _refreshList();
               },
             ),

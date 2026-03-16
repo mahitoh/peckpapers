@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../core/auth/local_auth.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../shell/main_shell.dart';
 import 'auth_widgets.dart';
 import 'login_screen.dart';
 
@@ -75,7 +77,7 @@ class _SignupScreenState extends State<SignupScreen> {
               Switch(
                 value: _acceptTerms,
                 onChanged: (value) => setState(() => _acceptTerms = value),
-                activeColor: AppColors.primary,
+                activeThumbColor: AppColors.primary,
               ),
               const SizedBox(width: 6),
               Expanded(
@@ -88,7 +90,24 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
           const SizedBox(height: 12),
           ElevatedButton(
-            onPressed: _acceptTerms ? () {} : null,
+            onPressed: _acceptTerms
+                ? () async {
+                    final email = _emailController.text.trim();
+                    final password = _passwordController.text;
+                    if (email.isEmpty || password.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Enter email and password')),
+                      );
+                      return;
+                    }
+                    await LocalAuth.signUp(email, password);
+                    if (!context.mounted) return;
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const MainShell()),
+                      (_) => false,
+                    );
+                  }
+                : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,

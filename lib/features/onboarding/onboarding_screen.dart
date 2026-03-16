@@ -128,7 +128,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   void _goToPage(int index) {
     if (index >= _pages.length) {
-      widget.onFinish();
+      _showAuthChoice();
       return;
     }
     _entranceCtrl.reset();
@@ -142,6 +142,98 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 
   void _next() => _goToPage(_currentPage + 1);
+
+  void _showAuthChoice() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.bgBase,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Get started',
+                  style: AppTextStyles.headingMD.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Choose how you want to continue.',
+                  style: AppTextStyles.bodyMD.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const LoginScreen()),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: BorderSide(color: AppColors.border),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: Text(
+                          'Log In',
+                          style: AppTextStyles.buttonMD.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const SignupScreen()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: Text(
+                          'Sign Up',
+                          style: AppTextStyles.buttonMD.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +285,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   opacity: _currentPage < _pages.length - 1 ? 1.0 : 0.0,
                   duration: const Duration(milliseconds: 300),
                   child: TextButton(
-                    onPressed: widget.onFinish,
+                    onPressed: _showAuthChoice,
                     style: TextButton.styleFrom(
                       foregroundColor: AppColors.textSecondary,
                       padding: const EdgeInsets.symmetric(
@@ -508,7 +600,7 @@ class _IllustrationWidget extends StatelessWidget {
   }
 }
 
-// â”€â”€ Scanner illustration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Scanner illustrationâ”
 
 class _ScannerIllustration extends StatelessWidget {
   const _ScannerIllustration({required this.color, required this.size});

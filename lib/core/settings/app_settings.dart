@@ -47,6 +47,7 @@ class AppSettings extends ChangeNotifier {
     }
 
     AppColors.useDark(isDark);
+    notifyListeners();
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {

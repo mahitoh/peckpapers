@@ -179,6 +179,10 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
     };
   }
 
+  int get _stackIndex => _currentTab == 2 ? 0 : _currentTab;
+
+  bool _isTabActive(int index) => _stackIndex == index;
+
   @override
   Widget build(BuildContext context) {
     // Match status bar to current theme
@@ -202,13 +206,25 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
           // Use IndexedStack so all screens stay mounted
           // (scroll positions, state preserved when switching tabs)
           IndexedStack(
-            index: _currentTab == 2 ? 0 : _currentTab,
+            index: _stackIndex,
             children: [
-              _KeepAliveScreen(child: _buildScreen(0)),
-              _KeepAliveScreen(child: _buildScreen(1)),
+              _LazyTab(
+                isActive: _isTabActive(0),
+                builder: (_) => _KeepAliveScreen(child: _buildScreen(0)),
+              ),
+              _LazyTab(
+                isActive: _isTabActive(1),
+                builder: (_) => _KeepAliveScreen(child: _buildScreen(1)),
+              ),
               const SizedBox.shrink(), // scanner is a modal
-              _KeepAliveScreen(child: _buildScreen(3)),
-              _KeepAliveScreen(child: _buildScreen(4)),
+              _LazyTab(
+                isActive: _isTabActive(3),
+                builder: (_) => _KeepAliveScreen(child: _buildScreen(3)),
+              ),
+              _LazyTab(
+                isActive: _isTabActive(4),
+                builder: (_) => _KeepAliveScreen(child: _buildScreen(4)),
+              ),
             ],
           ),
 
@@ -230,6 +246,36 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
         onTap: _switchTab,
       ),
     );
+  }
+}
+
+class _LazyTab extends StatefulWidget {
+  const _LazyTab({required this.isActive, required this.builder});
+
+  final bool isActive;
+  final WidgetBuilder builder;
+
+  @override
+  State<_LazyTab> createState() => _LazyTabState();
+}
+
+class _LazyTabState extends State<_LazyTab> {
+  Widget? _child;
+
+  @override
+  void didUpdateWidget(covariant _LazyTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && _child == null) {
+      _child = widget.builder(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_child == null && widget.isActive) {
+      _child = widget.builder(context);
+    }
+    return _child ?? const SizedBox.shrink();
   }
 }
 

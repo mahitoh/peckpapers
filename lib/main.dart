@@ -6,16 +6,16 @@ import 'package:flutter/services.dart';
 import 'core/settings/app_settings.dart';
 import 'core/settings/app_settings_scope.dart';
 import 'core/theme/app_theme.dart';
+import 'core/auth/local_auth.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/shell/main_shell.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   final settings = AppSettings();
-  await settings.load();
 
-  await SystemChrome.setPreferredOrientations([
+  SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
@@ -36,6 +36,23 @@ class PeckPapersApp extends StatefulWidget {
 
 class _PeckPapersAppState extends State<PeckPapersApp> {
   bool _onboardingDone = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _bootstrapApp();
+  }
+
+  Future<void> _bootstrapApp() async {
+    try {
+      await widget.settings.load();
+      await LocalAuth.ensureAdmin();
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('App bootstrap failed: $error');
+      }
+    }
+  }
 
   void _finishOnboarding() {
     setState(() => _onboardingDone = true);

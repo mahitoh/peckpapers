@@ -135,6 +135,7 @@ class _ScannerScreenState extends State<ScannerScreen>
       setState(() => _camReady = true);
       _bracketsCtrl.forward();
     } catch (_) {
+      if (!mounted) return;
       setState(() => _state = _ScanState.error);
     }
   }
