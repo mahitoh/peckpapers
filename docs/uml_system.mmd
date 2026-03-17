@@ -1,0 +1,71 @@
+classDiagram
+  direction LR
+
+  class ScannerScreen {
+    -String _extractedText
+    +_pickPdf()
+    +_generateAndOpenStudyPack()
+  }
+
+  class PdfPreviewScreen {
+    +title
+    +subtitle
+    +body
+    +bullets
+    +primaryActionLabel
+  }
+
+  class FlashcardsScreen {
+    +deckTitle
+  }
+
+  class OfflineAiService {
+    +summarize(text)
+    +generateFlashcards(text)
+  }
+
+  class AiCache {
+    +getSummary(key)
+    +setSummary(key)
+    +getFlashcards(key)
+    +setFlashcards(key)
+  }
+
+  class ModelHealthScreen
+  class ModelHealthChecker {
+    +check()
+  }
+
+  class ModelHealthReport
+
+  class HeuristicAiPipeline {
+    +summarize(text)
+    +generateFlashcards(text)
+  }
+
+  class OnnxTextGenerator {
+    +init()
+    +generate(prompt)
+  }
+
+  class SummaryResult {
+    +summary
+    +bullets
+  }
+
+  class Flashcard {
+    +question
+    +answer
+    +subject
+  }
+
+  ScannerScreen --> OfflineAiService : uses
+  OfflineAiService --> OnnxTextGenerator : tries
+  OfflineAiService --> HeuristicAiPipeline : fallback
+  OfflineAiService --> AiCache : cache
+  OfflineAiService --> SummaryResult : returns
+  OfflineAiService --> Flashcard : returns
+  ScannerScreen --> PdfPreviewScreen : opens
+  PdfPreviewScreen --> FlashcardsScreen : optional action
+  ModelHealthScreen --> ModelHealthChecker : uses
+  ModelHealthChecker --> ModelHealthReport : returns

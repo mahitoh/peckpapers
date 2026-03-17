@@ -1,4 +1,4 @@
-﻿// lib/features/library/library_screen.dart
+// lib/features/library/library_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,104 +7,13 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_card.dart';
 import '../../core/widgets/peck_badge.dart';
 import '../../core/widgets/glow_container.dart';
+import '../notes/notes_detail_screen.dart';
+import '../../core/services/schedule_service.dart';
+
 
 // â”€â”€â”€ Mock data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-class Document {
-  const Document({
-    required this.id,
-    required this.title,
-    required this.subject,
-    required this.pageCount,
-    required this.cardCount,
-    required this.progress,
-    required this.color,
-    required this.icon,
-    required this.dateAdded,
-    this.isFavourite = false,
-  });
-  final String id;
-  final String title;
-  final String subject;
-  final int pageCount;
-  final int cardCount;
-  final double progress;
-  final Color color;
-  final IconData icon;
-  final String dateAdded;
-  final bool isFavourite;
-}
-
-final _allDocs = [
-  Document(
-    id: '1',
-    title: 'Calculus â€” Integration by Parts',
-    subject: 'Mathematics',
-    pageCount: 4,
-    cardCount: 24,
-    progress: 0.72,
-    color: AppColors.amber,
-    icon: Icons.functions_rounded,
-    dateAdded: '2 days ago',
-    isFavourite: true,
-  ),
-  Document(
-    id: '2',
-    title: 'Organic Chemistry Part 2',
-    subject: 'Chemistry',
-    pageCount: 6,
-    cardCount: 38,
-    progress: 0.45,
-    color: AppColors.error,
-    icon: Icons.science_rounded,
-    dateAdded: '3 days ago',
-  ),
-  Document(
-    id: '3',
-    title: 'World War II â€” Causes & Effects',
-    subject: 'History',
-    pageCount: 8,
-    cardCount: 16,
-    progress: 0.91,
-    color: AppColors.success,
-    icon: Icons.history_edu_rounded,
-    dateAdded: '5 days ago',
-    isFavourite: true,
-  ),
-  Document(
-    id: '4',
-    title: 'Newton\'s Laws of Motion',
-    subject: 'Physics',
-    pageCount: 3,
-    cardCount: 20,
-    progress: 0.30,
-    color: AppColors.violet,
-    icon: Icons.bolt_rounded,
-    dateAdded: '1 week ago',
-  ),
-  Document(
-    id: '5',
-    title: 'Supply & Demand Curves',
-    subject: 'Economics',
-    pageCount: 5,
-    cardCount: 14,
-    progress: 0.60,
-    color: AppColors.warning,
-    icon: Icons.trending_up_rounded,
-    dateAdded: '1 week ago',
-  ),
-  Document(
-    id: '6',
-    title: 'Cell Biology â€” Mitosis',
-    subject: 'Biology',
-    pageCount: 7,
-    cardCount: 32,
-    progress: 0.15,
-    color: Color(0xFF3ECF8E),
-    icon: Icons.biotech_rounded,
-    dateAdded: '2 weeks ago',
-  ),
-];
+import '../../core/services/library_service.dart';
 
 final _subjects = [
   'All',
@@ -145,7 +54,8 @@ class _LibraryScreenState extends State<LibraryScreen>
   final _searchFocus = FocusNode();
   bool _searchActive = false;
   String _query = '';
-  List<Document> _filteredDocs = const [];
+  List<Document> _allDocs = [];
+  List<Document> _filteredDocs = [];
 
   // Filters
   String _selectedSubject = 'All';
@@ -189,7 +99,16 @@ class _LibraryScreenState extends State<LibraryScreen>
       });
     });
 
-    _recomputeFiltered();
+    _loadDocs();
+  }
+
+  Future<void> _loadDocs() async {
+    final docs = await LibraryService.instance.getDocuments();
+    if (!mounted) return;
+    setState(() {
+      _allDocs = docs;
+      _recomputeFiltered();
+    });
   }
 
   @override
@@ -253,7 +172,8 @@ class _LibraryScreenState extends State<LibraryScreen>
           .where(
             (d) =>
                 d.title.toLowerCase().contains(q) ||
-                d.subject.toLowerCase().contains(q),
+                d.subject.toLowerCase().contains(q) ||
+                (d.textContent ?? '').toLowerCase().contains(q),
           )
           .toList();
     }
@@ -300,8 +220,11 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   // â”€â”€ Delete doc â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  void _deleteDoc(Document doc) {
+  void _deleteDoc(Document doc) async {
     HapticFeedback.mediumImpact();
+    await LibraryService.instance.deleteDocument(doc.id);
+    _loadDocs();
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -311,7 +234,10 @@ class _LibraryScreenState extends State<LibraryScreen>
         action: SnackBarAction(
           label: 'Undo',
           textColor: AppColors.amber,
-          onPressed: () {},
+          onPressed: () async {
+            await LibraryService.instance.saveDocument(doc);
+            _loadDocs();
+          },
         ),
       ),
     );
@@ -431,10 +357,27 @@ class _LibraryScreenState extends State<LibraryScreen>
                       position: slide,
                       child: _SwipableDocRow(
                         doc: docs[i],
-                        onTap: () => widget.onDocumentTap?.call(docs[i]),
+                        onTap: () {
+                          widget.onDocumentTap?.call(docs[i]);
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => NotesDetailScreen(document: docs[i]),
+                            ),
+                          );
+                        },
                         onDelete: () => _deleteDoc(docs[i]),
-                        onFav: () => setState(() {}),
-                      ),
+                          onFav: () async {
+                            final updated = docs[i].copyWith(isFavourite: !docs[i].isFavourite);
+                            await LibraryService.instance.saveDocument(updated);
+                            _loadDocs();
+                          },
+                          onDeleteSummary: () async {
+                            final updated = docs[i].copyWith(summary: null);
+                            await LibraryService.instance.saveDocument(updated);
+                            _loadDocs();
+                          },
+                          onSchedule: () => _showScheduleSheet(docs[i]),
+                        ),
                     ),
                   ),
                 );
@@ -458,7 +401,14 @@ class _LibraryScreenState extends State<LibraryScreen>
                     opacity: fade,
                     child: _DocGridCard(
                       doc: docs[i],
-                      onTap: () => widget.onDocumentTap?.call(docs[i]),
+                      onTap: () {
+                        widget.onDocumentTap?.call(docs[i]);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => NotesDetailScreen(document: docs[i]),
+                          ),
+                        );
+                      },
                     ),
                   );
                 }, childCount: docs.length),
@@ -477,6 +427,21 @@ class _LibraryScreenState extends State<LibraryScreen>
 
       // â”€â”€ FAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       floatingActionButton: _ScanFab(onTap: widget.onScanTap),
+    );
+  }
+
+  void _showScheduleSheet(Document doc) {    final messenger = ScaffoldMessenger.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _LibraryScheduleSheet(
+        document: doc,
+        onScheduled: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Study session scheduled!')),
+          );
+        },
+      ),
     );
   }
 }
@@ -755,11 +720,15 @@ class _SwipableDocRow extends StatefulWidget {
     required this.onTap,
     required this.onDelete,
     required this.onFav,
+    required this.onDeleteSummary,
+    required this.onSchedule,
   });
   final Document doc;
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final VoidCallback onFav;
+  final VoidCallback onDeleteSummary;
+  final VoidCallback onSchedule;
 
   @override
   State<_SwipableDocRow> createState() => _SwipableDocRowState();
@@ -774,14 +743,14 @@ class _SwipableDocRowState extends State<_SwipableDocRow> {
   void _onDragUpdate(DragUpdateDetails d) {
     if (d.delta.dx > 0 && _dragX >= 0) return; // no right swipe
     setState(() {
-      _dragX = (_dragX + d.delta.dx).clamp(-120.0, 0.0);
+      _dragX = (_dragX + d.delta.dx).clamp(-200.0, 0.0);
     });
   }
 
   void _onDragEnd(DragEndDetails d) {
     if (_dragX.abs() > _threshold) {
       setState(() {
-        _dragX = -96;
+        _dragX = -188;
         _revealed = true;
       });
     } else {
@@ -822,6 +791,29 @@ class _SwipableDocRowState extends State<_SwipableDocRow> {
                   width: 42,
                 ),
                 const SizedBox(width: 8),
+                // Schedule
+                _SwipeAction(
+                  icon: Icons.calendar_today_rounded,
+                  color: AppColors.primary,
+                  onTap: () {
+                    _snap();
+                    widget.onSchedule();
+                  },
+                  width: 42,
+                ),
+                const SizedBox(width: 8),
+                // Delete Summary
+                if (widget.doc.hasSummary)
+                  _SwipeAction(
+                    icon: Icons.subtitles_off_rounded,
+                    color: AppColors.violet,
+                    onTap: () {
+                      _snap();
+                      widget.onDeleteSummary();
+                    },
+                    width: 42,
+                  ),
+                if (widget.doc.hasSummary) const SizedBox(width: 8),
                 // Delete
                 _SwipeAction(
                   icon: Icons.delete_outline_rounded,
@@ -1364,4 +1356,137 @@ class _ScanFabState extends State<_ScanFab>
     );
   }
 }
+
+class _LibraryScheduleSheet extends StatefulWidget {
+  const _LibraryScheduleSheet({required this.document, required this.onScheduled});
+  final Document document;
+  final VoidCallback onScheduled;
+
+  @override
+  State<_LibraryScheduleSheet> createState() => _LibraryScheduleSheetState();
+}
+
+class _LibraryScheduleSheetState extends State<_LibraryScheduleSheet> {
+  DateTime _selectedDate = DateTime.now().add(const Duration(hours: 1));
+  String _type = 'Reading';
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.bgCard,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Schedule Study', style: AppTextStyles.headingMD),
+          const SizedBox(height: 20),
+          Text('Activity Type', style: AppTextStyles.labelLG),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              _typeChip('Reading'),
+              const SizedBox(width: 8),
+              _typeChip('Quiz'),
+              const SizedBox(width: 8),
+              _typeChip('Flashcards'),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text('Time', style: AppTextStyles.labelLG),
+          const SizedBox(height: 8),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(Icons.access_time_rounded, color: AppColors.primary),
+            title: Text(
+              '${_selectedDate.hour}:${_selectedDate.minute.toString().padLeft(2, '0')}',
+              style: AppTextStyles.bodyMDMedium,
+            ),
+            subtitle: Text(
+              '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+              style: AppTextStyles.bodySM,
+            ),
+            onTap: () async {
+              final date = await showDatePicker(
+                context: context,
+                initialDate: _selectedDate,
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(const Duration(days: 30)),
+              );
+              if (date != null) {
+                final time = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.fromDateTime(_selectedDate),
+                );
+                if (time != null) {
+                  setState(() {
+                    _selectedDate = DateTime(
+                      date.year,
+                      date.month,
+                      date.day,
+                      time.hour,
+                      time.minute,
+                    );
+                  });
+                }
+              }
+            },
+          ),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () async {
+                final activity = ScheduledActivity(
+                  id: 'sched_${DateTime.now().millisecondsSinceEpoch}',
+                  docId: widget.document.id,
+                  title: '${widget.document.title} - $_type',
+                  subject: widget.document.subject,
+                  scheduledTime: _selectedDate,
+                );
+                await ScheduleService.instance.scheduleActivity(activity);
+                widget.onScheduled();
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Confirm Schedule'),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+      ),
+    );
+  }
+
+  Widget _typeChip(String label) {
+    final active = _type == label;
+    return GestureDetector(
+      onTap: () => setState(() => _type = label),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: active ? AppColors.primary : AppColors.bgSurface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: active ? AppColors.primary : AppColors.border),
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.bodySM.copyWith(
+            color: active ? Colors.white : AppColors.textSecondary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 

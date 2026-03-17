@@ -3,26 +3,37 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../core/ai/ai_models.dart' as ai;
+import '../../core/quiz/local_quiz_repository.dart';
+import '../../core/services/analytics_service.dart';
+import '../../core/services/library_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_badge.dart';
 import '../../core/widgets/peck_button.dart';
+import '../../core/widgets/peck_card.dart';
 import '../../core/widgets/glow_container.dart';
 import '../pdf/pdf_preview_screen.dart';
 
 // â”€â”€â”€ Data models â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+enum QuestionType { multipleChoice, trueFalse, fillInBlank }
 
 class QuizQuestion {
   const QuizQuestion({
     required this.question,
     required this.options,
     required this.correctIndex,
+    this.type = QuestionType.multipleChoice,
+    this.correctText, 
     this.explanation,
     this.subject,
   });
   final String question;
   final List<String> options;
   final int correctIndex;
+  final QuestionType type;
+  final String? correctText; // For fill-in-the-blank
   final String? explanation;
   final String? subject;
 }
@@ -105,6 +116,317 @@ const _mockQuestions = [
 ];
 
 // â”€â”€â”€ Quiz states â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// --- Quiz Lobby Screen ---
+class QuizLobbyScreen extends StatefulWidget {
+  const QuizLobbyScreen({super.key});
+  @override
+  State<QuizLobbyScreen> createState() => _QuizLobbyScreenState();
+}
+
+class _QuizLobbyScreenState extends State<QuizLobbyScreen> {
+  List<Document> _docs = [];
+  bool _loading = true;
+  Document? _selected;
+  Map<ai.QuestionDifficulty, List<ai.QuizQuestion>> _quizzes = {};
+  bool _loadingQuizzes = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDocs();
+  }
+
+  Future<void> _loadDocs() async {
+    final docs = await LibraryService.instance.getDocuments();
+    if (mounted) {
+      setState(() {
+        _docs = docs.where((d) => d.hasQuizzes).toList();
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _selectDoc(Document doc) async {
+    setState(() { _selected = doc; _loadingQuizzes = true; _quizzes = {}; });
+    final q = await LocalQuizRepository.instance.getAllQuizzes(doc.id);
+    if (mounted) setState(() { _quizzes = q; _loadingQuizzes = false; });
+  }
+
+  void _launch(ai.QuestionDifficulty difficulty) {
+    final raw = _quizzes[difficulty] ?? [];
+    if (raw.isEmpty) return;
+    final questions = raw.map((q) => QuizQuestion(
+      question: q.question,
+      options: q.options,
+      correctIndex: q.correctIndex,
+      explanation: q.explanation,
+      subject: q.subject,
+    )).toList();
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => QuizScreen(
+        questions: questions,
+        onBack: () { if (Navigator.canPop(context)) Navigator.pop(context); },
+        onFinish: () { if (Navigator.canPop(context)) Navigator.pop(context); },
+      ),
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bgBase,
+      appBar: AppBar(
+        backgroundColor: AppColors.bgBase,
+        elevation: 0,
+        title: Text('Quiz', style: AppTextStyles.headingMD),
+        centerTitle: false,
+        automaticallyImplyLeading: false,
+      ),
+      body: _loading          ? _QuizShimmer()
+          : _docs.isEmpty
+              ? _EmptyQuizState()
+              : _selected == null
+                  ? _DocPicker(docs: _docs, onSelect: _selectDoc)
+                  : _DifficultyPicker(
+                      doc: _selected!,
+                      quizzes: _quizzes,
+                      loading: _loadingQuizzes,
+                      onBack: () => setState(() { _selected = null; _quizzes = {}; }),
+                      onLaunch: _launch,
+                    ),
+    );
+  }
+}
+
+class _EmptyQuizState extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.quiz_outlined, size: 80, color: AppColors.border),
+            const SizedBox(height: 24),
+            Text('No quizzes yet', style: AppTextStyles.headingMD),
+            const SizedBox(height: 8),
+            Text(
+              'Scan a document and quizzes will be generated automatically.',
+              style: AppTextStyles.bodyMD,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DocPicker extends StatelessWidget {
+  const _DocPicker({required this.docs, required this.onSelect});
+  final List<Document> docs;
+  final ValueChanged<Document> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+          child: Text('Choose a subject', style: AppTextStyles.bodyMD),
+        ),
+        Expanded(
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            itemCount: docs.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (_, i) {
+              final doc = docs[i];
+              return PeckCard(
+                onTap: () => onSelect(doc),
+                padding: const EdgeInsets.all(18),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 46, height: 46,
+                      decoration: BoxDecoration(
+                        color: doc.color.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(doc.icon, color: doc.color, size: 22),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(doc.title, style: AppTextStyles.headingSM),
+                          const SizedBox(height: 2),
+                          Text('${doc.totalQuizCount} questions • ${doc.subject}', style: AppTextStyles.bodySM),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DifficultyPicker extends StatelessWidget {
+  const _DifficultyPicker({
+    required this.doc,
+    required this.quizzes,
+    required this.loading,
+    required this.onBack,
+    required this.onLaunch,
+  });
+  final Document doc;
+  final Map<ai.QuestionDifficulty, List<ai.QuizQuestion>> quizzes;
+  final bool loading;
+  final VoidCallback onBack;
+  final ValueChanged<ai.QuestionDifficulty> onLaunch;
+
+  @override
+  Widget build(BuildContext context) {
+    final options = [
+      (d: ai.QuestionDifficulty.easy,      label: 'Easy',   emoji: '😊', color: AppColors.success),
+      (d: ai.QuestionDifficulty.medium,    label: 'Medium', emoji: '🤔', color: AppColors.warning),
+      (d: ai.QuestionDifficulty.difficult, label: 'Hard',   emoji: '🔥', color: AppColors.error),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 24, 16),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                onPressed: onBack,
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(doc.title, style: AppTextStyles.headingSM, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text('Choose difficulty', style: AppTextStyles.bodySM),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (loading)
+          const Expanded(child: Center(child: CircularProgressIndicator()))
+        else
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              children: options.map((o) {
+                final count = quizzes[o.d]?.length ?? 0;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: GestureDetector(
+                    onTap: count > 0 ? () => onLaunch(o.d) : null,
+                    child: AnimatedOpacity(
+                      opacity: count > 0 ? 1.0 : 0.4,
+                      duration: const Duration(milliseconds: 200),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: o.color.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: o.color.withOpacity(0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 52, height: 52,
+                              decoration: BoxDecoration(
+                                color: o.color.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Center(child: Text(o.emoji, style: const TextStyle(fontSize: 26))),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(o.label, style: AppTextStyles.headingSM.copyWith(color: o.color)),
+                                  const SizedBox(height: 2),
+                                  Text(count > 0 ? '$count questions' : 'No questions available', style: AppTextStyles.bodySM),
+                                ],
+                              ),
+                            ),
+                            if (count > 0) Icon(Icons.play_circle_rounded, color: o.color, size: 28),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+
+// ─── Quiz Shimmer ─────────────────────────────────────────────────────────────
+
+class _QuizShimmer extends StatefulWidget {
+  @override
+  State<_QuizShimmer> createState() => _QuizShimmerState();
+}
+
+class _QuizShimmerState extends State<_QuizShimmer> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100))..repeat();
+    _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
+  }
+
+  @override
+  void dispose() { _ctrl.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, __) {
+        final c = Color.lerp(AppColors.bgCard, AppColors.bgSurface, _anim.value)!;
+        return Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: List.generate(4, (_) => Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Container(
+                height: 72,
+                decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(16)),
+              ),
+            )),
+          ),
+        );
+      },
+    );
+  }
+}
 
 enum _QuizState { active, results }
 
@@ -259,9 +581,41 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
       _answered = true;
     });
     _answers.add(index);
+    
+    // Log result to analytics
+    if (_current.subject != null) {
+      AnalyticsService.instance.logQuizResult(_current.subject!, correct);
+    }
 
     // Auto advance after showing feedback
     Future.delayed(const Duration(milliseconds: 1800), _advance);
+  }
+
+  void _submitText(String text) {
+    if (_answered) return;
+    final correct = text.trim().toLowerCase() == (_current.correctText ?? '').toLowerCase();
+    _timer?.cancel();
+    _timerCtrl.stop();
+    _feedbackCtrl.forward(from: 0);
+
+    if (correct) {
+      HapticFeedback.lightImpact();
+    } else {
+      HapticFeedback.vibrate();
+    }
+
+    setState(() {
+      _answered = true;
+    });
+    // For text answers, we still store an index or null. 
+    // Let's use correctIndex as a flag if they got it right.
+    _answers.add(correct ? _current.correctIndex : -1);
+
+    if (_current.subject != null) {
+      AnalyticsService.instance.logQuizResult(_current.subject!, correct);
+    }
+
+    Future.delayed(const Duration(milliseconds: 2000), _advance);
   }
 
   void _advance() {
@@ -311,7 +665,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
           });
           _startQuestion();
         },
-        onDone: widget.onFinish ?? () => Navigator.pop(context),
+        onDone: widget.onFinish ?? () { if (Navigator.canPop(context)) Navigator.pop(context); },
       );
     }
 
@@ -325,7 +679,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
             _QuizTopBar(
               current: _currentIndex + 1,
               total: widget.questions.length,
-              onBack: widget.onBack ?? () => Navigator.pop(context),
+              onBack: widget.onBack ?? () { if (Navigator.canPop(context)) Navigator.pop(context); },
               timeLeft: _timeLeft,
               totalTime: widget.timePerQuestion,
               timerCtrl: _timerCtrl,
@@ -360,23 +714,29 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
             const SizedBox(height: 28),
 
-            // â”€â”€ Options â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // â”€â”€ Options / Input â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _current.options.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 12),
-                itemBuilder: (_, i) => FadeTransition(
-                  opacity: _optionFades[i],
-                  child: _OptionTile(
-                    label: _current.options[i],
-                    index: i,
-                    state: _optionState(i),
-                    onTap: () => _selectOption(i),
-                  ),
-                ),
-              ),
+              child: _current.type == QuestionType.fillInBlank
+                  ? _FillInBlankInput(
+                      onSubmitted: _submitText,
+                      answered: _answered,
+                      correctText: _current.correctText ?? '',
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _current.options.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 12),
+                      itemBuilder: (_, i) => FadeTransition(
+                        opacity: _optionFades[i],
+                        child: _OptionTile(
+                          label: _current.options[i],
+                          index: i,
+                          state: _optionState(i),
+                          onTap: () => _selectOption(i),
+                        ),
+                      ),
+                    ),
             ),
 
             // â”€â”€ Explanation (after answer) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -1416,4 +1776,90 @@ class _ReviewRow extends StatelessWidget {
     );
   }
 }
+
+
+class _FillInBlankInput extends StatefulWidget {
+  const _FillInBlankInput({
+    required this.onSubmitted,
+    required this.answered,
+    required this.correctText,
+  });
+  final Function(String) onSubmitted;
+  final bool answered;
+  final String correctText;
+
+  @override
+  State<_FillInBlankInput> createState() => _FillInBlankInputState();
+}
+
+class _FillInBlankInputState extends State<_FillInBlankInput> {
+  final _controller = TextEditingController();
+  final _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          TextField(
+            controller: _controller,
+            focusNode: _focusNode,
+            enabled: !widget.answered,
+            style: AppTextStyles.headingMD,
+            decoration: InputDecoration(
+              hintText: 'Type your answer...',
+              hintStyle: AppTextStyles.bodyMD.copyWith(color: AppColors.textTertiary),
+              filled: true,
+              fillColor: AppColors.bgCard,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: AppColors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: AppColors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: AppColors.amber, width: 2),
+              ),
+            ),
+            onSubmitted: widget.onSubmitted,
+          ),
+          const SizedBox(height: 16),
+          if (!widget.answered)
+            PeckButton(
+              label: 'Submit Answer',
+              onPressed: () => widget.onSubmitted(_controller.text),
+              variant: PeckButtonVariant.primary,
+            )
+          else ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text('Correct answer: ', style: AppTextStyles.bodySM),
+                Text(
+                  widget.correctText,
+                  style: AppTextStyles.bodyMDMedium.copyWith(color: AppColors.success),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+
+
+
 

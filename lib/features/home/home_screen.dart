@@ -1,4 +1,4 @@
-﻿// lib/features/home/home_screen.dart
+// lib/features/home/home_screen.dart
 
 import 'dart:ui';
 
@@ -8,25 +8,12 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../settings/settings_screen.dart';
 import '../profile/profile_screen.dart';
+import '../analytics/analytics_screen.dart';
+import '../../core/services/schedule_service.dart';
+import '../../core/services/analytics_service.dart';
+import 'package:intl/intl.dart';
 
-// â”€â”€â”€ Models â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-class _Task {
-  const _Task({
-    required this.title,
-    required this.subject,
-    required this.time,
-    required this.priority,
-    required this.color,
-    required this.completed,
-  });
-  final String title;
-  final String subject;
-  final String time;
-  final int priority;
-  final Color color;
-  final bool completed;
-}
+// Models and mock data have been moved to or replaced by real services.
 
 class _StatItem {
   const _StatItem({
@@ -41,60 +28,6 @@ class _StatItem {
   final IconData icon;
   final Color color;
 }
-
-final _mockTasks = [
-  _Task(
-    title: 'Calculus â€” Integration',
-    subject: 'Mathematics',
-    time: '8:30 AM',
-    priority: 3,
-    color: AppColors.primary,
-    completed: false,
-  ),
-  _Task(
-    title: 'Organic Chemistry',
-    subject: 'Chemistry',
-    time: '9:45 AM',
-    priority: 4,
-    color: AppColors.accentOrange,
-    completed: false,
-  ),
-  _Task(
-    title: 'World War II',
-    subject: 'History',
-    time: '1:00 PM',
-    priority: 2,
-    color: AppColors.accentGreen,
-    completed: true,
-  ),
-];
-
-final _stats = [
-  _StatItem(
-    label: 'Due Today',
-    value: '12',
-    icon: Icons.style_outlined,
-    color: AppColors.primary,
-  ),
-  _StatItem(
-    label: 'Streak',
-    value: '7',
-    icon: Icons.local_fire_department_outlined,
-    color: AppColors.accentOrange,
-  ),
-  _StatItem(
-    label: 'Total Scans',
-    value: '48',
-    icon: Icons.document_scanner_outlined,
-    color: AppColors.secondary,
-  ),
-  _StatItem(
-    label: 'Mastery %',
-    value: '72%',
-    icon: Icons.emoji_events_outlined,
-    color: AppColors.accentGreen,
-  ),
-];
 
 // â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -116,24 +49,115 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  // Reserved for future schedule tabs
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   static const int _statsLoopCount = 2000;
   static const int _statsLoopBase = 1000;
   late final PageController _statsController;
   int _currentStat = 0;
 
+  List<ScheduledActivity> _scheduledActivities = [];
+  AnalyticsData? _analyticsData;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _statsController = PageController(
       viewportFraction: 0.55,
       initialPage: _statsLoopBase,
     );
+    _loadData();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final schedule = await ScheduleService.instance.getSchedule();
+    final analytics = await AnalyticsService.instance.getData();
+    if (mounted) {
+      setState(() {
+        _scheduledActivities = schedule;
+        _analyticsData = analytics;
+      });
+    }
+  }
+
+  List<_StatItem> get _dynamicStats {
+    // Streak and other values would come from analytics if fully implemented
+    // For now we use what we have in AnalyticsService
+    
+    int dueToday = _scheduledActivities.where((a) => 
+      a.scheduledTime.year == DateTime.now().year &&
+      a.scheduledTime.month == DateTime.now().month &&
+      a.scheduledTime.day == DateTime.now().day &&
+      !a.completed
+    ).length;
+
+    if (_analyticsData == null) {
+      return [
+        _StatItem(
+          label: 'Due Today',
+          value: '$dueToday',
+          icon: Icons.style_outlined,
+          color: AppColors.primary,
+        ),
+        _StatItem(
+          label: 'Study Time',
+          value: '0m',
+          icon: Icons.access_time_rounded,
+          color: AppColors.accentOrange,
+        ),
+        _StatItem(
+          label: 'World Rank',
+          value: '#---',
+          icon: Icons.emoji_events_outlined,
+          color: AppColors.secondary,
+        ),
+        _StatItem(
+          label: 'Mastery',
+          value: '0%',
+          icon: Icons.bolt_rounded,
+          color: AppColors.accentGreen,
+        ),
+      ];
+    }
+    
+    return [
+      _StatItem(
+        label: 'Due Today',
+        value: '$dueToday',
+        icon: Icons.style_outlined,
+        color: AppColors.primary,
+      ),
+      _StatItem(
+        label: 'Study Time',
+        value: '${_analyticsData!.studyTimeMinutes}m',
+        icon: Icons.access_time_rounded,
+        color: AppColors.accentOrange,
+      ),
+      _StatItem(
+        label: 'World Rank',
+        value: '#${_analyticsData!.worldRank}',
+        icon: Icons.emoji_events_outlined,
+        color: AppColors.secondary,
+      ),
+      _StatItem(
+        label: 'Mastery',
+        value: _analyticsData!.subjects.isEmpty 
+            ? '0%' 
+            : '${(_analyticsData!.subjects.map((e) => e.mastery).reduce((a, b) => a + b) / _analyticsData!.subjects.length * 100).toInt()}%',
+        icon: Icons.bolt_rounded,
+        color: AppColors.accentGreen,
+      ),
+    ];
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _statsController.dispose();
     super.dispose();
   }
@@ -353,11 +377,11 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 150,
             child: PageView.builder(
               controller: _statsController,
-              itemCount: _stats.length * _statsLoopCount,
+              itemCount: _dynamicStats.length * _statsLoopCount,
               onPageChanged: (index) =>
-                  setState(() => _currentStat = index % _stats.length),
+                  setState(() => _currentStat = index % _dynamicStats.length),
               itemBuilder: (context, index) {
-                final statIndex = index % _stats.length;
+                final statIndex = index % _dynamicStats.length;
                 return AnimatedBuilder(
                   animation: _statsController,
                   builder: (context, child) {
@@ -381,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ImageFiltered(
                           imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
                           child: _buildStatCard(
-                            _stats[statIndex],
+                            _dynamicStats[statIndex],
                             isActive: isActive,
                           ),
                         ),
@@ -487,9 +511,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildStatDots() {
+    final stats = _dynamicStats;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(_stats.length, (i) {
+      children: List.generate(stats.length, (i) {
         final isActive = i == _currentStat;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -516,17 +541,17 @@ class _HomeScreenState extends State<HomeScreen> {
               delegate: SliverChildBuilderDelegate(
                 (ctx, i) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: _buildTaskCard(_mockTasks[i], i),
+                  child: _buildTaskCard(_scheduledActivities[i], i),
                 ),
-                childCount: _mockTasks.length,
+                childCount: _scheduledActivities.length,
               ),
             );
           }
 
           return SliverGrid(
             delegate: SliverChildBuilderDelegate(
-              (ctx, i) => _buildTaskCard(_mockTasks[i], i),
-              childCount: _mockTasks.length,
+              (ctx, i) => _buildTaskCard(_scheduledActivities[i], i),
+              childCount: _scheduledActivities.length,
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
@@ -570,9 +595,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // â”€â”€â”€ Task Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Task Card 
+  Widget _buildTaskCard(ScheduledActivity task, int index) {
+    final Color subjectColor = AppColors.subjectToColor(task.subject);
 
-  Widget _buildTaskCard(_Task task, int index) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.bgCard,
@@ -584,85 +610,87 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-              // Priority indicator
-              Container(
-                width: 4,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: task.color,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+            // Priority indicator (using calculated subject color)
+            Container(
+              width: 4,
+              height: 50,
+              decoration: BoxDecoration(
+                color: subjectColor,
+                borderRadius: BorderRadius.circular(2),
               ),
-              const SizedBox(width: 14),
+            ),
+            const SizedBox(width: 14),
 
-              // Content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: task.color.withOpacityCompat(0.3),
-                            shape: BoxShape.circle,
-                          ),
+            // Content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: subjectColor.withOpacityCompat(0.3),
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          task.subject,
-                          style: AppTextStyles.labelSM.copyWith(
-                            color: task.color,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      task.title,
-                      style: AppTextStyles.bodyLG.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                        decoration: task.completed
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
                       ),
+                      const SizedBox(width: 6),
+                      Text(
+                        task.subject,
+                        style: AppTextStyles.labelSM.copyWith(
+                          color: subjectColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    task.title,
+                    style: AppTextStyles.bodyLG.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                      decoration: task.completed
+                          ? TextDecoration.lineThrough
+                          : TextDecoration.none,
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 14,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: AppColors.textTertiary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        DateFormat('h:mm a').format(task.scheduledTime),
+                        style: AppTextStyles.labelSM.copyWith(
                           color: AppColors.textTertiary,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          task.time,
-                          style: AppTextStyles.labelSM.copyWith(
-                            color: AppColors.textTertiary,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        ...List.generate(
-                          task.priority,
-                          (i) => Icon(
-                            Icons.warning_amber_rounded,
-                            size: 12,
-                            color: AppColors.accentOrange,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                      const SizedBox(width: 12),
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        size: 12,
+                        color: AppColors.accentOrange,
+                      ),
+                    ],
+                  ),
+                ],
               ),
+            ),
 
-              // Checkbox
-              Container(
+            // Checkbox
+            GestureDetector(
+              onTap: () async {
+                await ScheduleService.instance.toggleComplete(task.id);
+                _loadData(); // reload on change
+              },
+              child: Container(
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
@@ -677,6 +705,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? const Icon(Icons.check, color: Colors.white, size: 18)
                     : null,
               ),
+            ),
           ],
         ),
       ),
@@ -762,6 +791,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   activeThumbColor: AppColors.primary,
                 ),
                 const Divider(),
+                ListTile(
+                  leading: Icon(Icons.bar_chart_rounded, color: AppColors.textPrimary),
+                  title: Text(
+                    'Statistics',
+                    style: AppTextStyles.bodyMD.copyWith(color: AppColors.textPrimary),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => AnalyticsScreen(onBack: () => Navigator.pop(context)),
+                      ),
+                    );
+                  },
+                ),
                 ListTile(
                   leading: Icon(Icons.settings, color: AppColors.textPrimary),
                   title: Text(

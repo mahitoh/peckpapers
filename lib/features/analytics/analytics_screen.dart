@@ -1,5 +1,6 @@
 ﻿// lib/features/analytics/analytics_screen.dart
 
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
@@ -9,75 +10,9 @@ import '../../core/widgets/peck_badge.dart';
 import '../../core/widgets/section_header.dart';
 import '../../core/widgets/glow_container.dart';
 import '../../core/widgets/stat_tile.dart';
+import '../../core/services/analytics_service.dart';
 
-// â”€â”€â”€ Mock data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-class _DayActivity {
-  const _DayActivity({required this.day, required this.minutes});
-  final String day;
-  final int minutes;
-}
-
-class _SubjectMastery {
-  const _SubjectMastery({
-    required this.subject,
-    required this.mastery,
-    required this.cards,
-    required this.color,
-  });
-  final String subject;
-  final double mastery; // 0.0 â€“ 1.0
-  final int cards;
-  final Color color;
-}
-
-const _weekActivity = [
-  _DayActivity(day: 'Mon', minutes: 24),
-  _DayActivity(day: 'Tue', minutes: 45),
-  _DayActivity(day: 'Wed', minutes: 18),
-  _DayActivity(day: 'Thu', minutes: 62),
-  _DayActivity(day: 'Fri', minutes: 38),
-  _DayActivity(day: 'Sat', minutes: 80),
-  _DayActivity(day: 'Sun', minutes: 30),
-];
-
-final _subjects = [
-  _SubjectMastery(
-    subject: 'Mathematics',
-    mastery: 0.78,
-    cards: 124,
-    color: AppColors.amber,
-  ),
-  _SubjectMastery(
-    subject: 'Physics',
-    mastery: 0.54,
-    cards: 86,
-    color: AppColors.violet,
-  ),
-  _SubjectMastery(
-    subject: 'Chemistry',
-    mastery: 0.42,
-    cards: 98,
-    color: AppColors.error,
-  ),
-  _SubjectMastery(
-    subject: 'Economics',
-    mastery: 0.91,
-    cards: 62,
-    color: AppColors.success,
-  ),
-  _SubjectMastery(
-    subject: 'History',
-    mastery: 0.65,
-    cards: 44,
-    color: AppColors.warning,
-  ),
-];
-
-// Heatmap â€” 35 days, value 0-4
-final _heatmap = List.generate(35, (i) => math.Random(i * 7).nextInt(5));
-
-// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Screen ─────────────────────────────────────────────────────────────────────
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key, this.onBack});
@@ -92,6 +27,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
   late AnimationController _chartCtrl;
   late Animation<double> _chartAnim;
 
+  AnalyticsData? _data;
+  late final StreamSubscription<AnalyticsData> _sub;
+
+  Future<void> _loadData() async {
+    final d = await AnalyticsService.instance.getData();
+    if (!mounted) return;
+    setState(() => _data = d);
+    _chartCtrl.forward(from: 0);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -99,18 +44,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1100),
     );
-    _chartAnim = CurvedAnimation(
-      parent: _chartCtrl,
-      curve: Curves.easeOutCubic,
-    );
-    // Slight delay so screen entrance feels clean
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) _chartCtrl.forward();
+    _chartAnim = CurvedAnimation(parent: _chartCtrl, curve: Curves.easeOutCubic);
+    _loadData();
+    // Subscribe to real-time updates
+    _sub = AnalyticsService.instance.stream.listen((d) {
+      if (!mounted) return;
+      setState(() => _data = d);
+      _chartCtrl.forward(from: 0);
     });
   }
 
   @override
   void dispose() {
+    _sub.cancel();
     _chartCtrl.dispose();
     super.dispose();
   }
@@ -119,47 +65,53 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgBase,
-      body: CustomScrollView(
+      body: _data == null
+          ? _LoadingShimmer()
+          : CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // ── Header ────────────────────────────────────────────
           SliverToBoxAdapter(
             child: _AnalyticsHeader(
               onBack: widget.onBack ?? () => Navigator.pop(context),
             ),
           ),
 
-          // â”€â”€ Top stats row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // ── Top stats row ──────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-              child: _TopStatsRow(),
+              child: _data == null ? const SizedBox() : _TopStatsRow(data: _data!),
             ),
           ),
 
           const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-          // â”€â”€ Activity chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // ── Activity chart ─────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: _ActivityChartCard(anim: _chartAnim),
+              child: _data == null
+                  ? const SizedBox()
+                  : _ActivityChartCard(anim: _chartAnim, data: _data!),
             ),
           ),
 
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
-          // â”€â”€ Streak + time row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // ── Streak + time row ──────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: _StreakTimeRow(anim: _chartAnim),
+              child: _data == null
+                  ? const SizedBox()
+                  : _StreakTimeRow(anim: _chartAnim, data: _data!),
             ),
           ),
 
           const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-          // â”€â”€ Subject mastery â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // ── Subject mastery ────────────────────────────────────
           const SliverToBoxAdapter(
             child: SectionHeader(
               title: 'Subject Mastery',
@@ -169,23 +121,31 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
 
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (ctx, i) => Padding(
+          if (_data != null && _data!.subjects.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 10),
-                child: _SubjectMasteryRow(
-                  subject: _subjects[i],
-                  anim: _chartAnim,
-                  rank: i,
-                ),
+                child: _EmptySubjectsCard(),
               ),
-              childCount: _subjects.length,
+            )
+          else
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (ctx, i) => Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 10),
+                  child: _SubjectMasteryRow(
+                    subject: _data!.subjects[i],
+                    anim: _chartAnim,
+                    rank: i,
+                  ),
+                ),
+                childCount: _data?.subjects.length ?? 0,
+              ),
             ),
-          ),
 
           const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-          // â”€â”€ Heatmap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // ── Heatmap ────────────────────────────────────────────
           const SliverToBoxAdapter(
             child: SectionHeader(
               title: 'Study Heatmap',
@@ -199,17 +159,50 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: _HeatmapCard(data: _heatmap),
+              child: _data == null
+                  ? const SizedBox()
+                  : _HeatmapCard(data: _data!.heatmap),
             ),
           ),
 
           const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-          // â”€â”€ World ranking card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // ── Weak topics ───────────────────────────────────────
+          if (_data != null && _data!.weakTopics.isNotEmpty) ...[
+            const SliverToBoxAdapter(
+              child: SectionHeader(
+                title: 'Needs Review',
+                action: 'Weak Topics',
+                padding: EdgeInsets.symmetric(horizontal: 24),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: _data!.weakTopics
+                      .map((topic) => PeckBadge(
+                            label: topic,
+                            color: AppColors.error,
+                            style: BadgeStyle.subtle,
+                          ))
+                      .toList(),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 28)),
+          ],
+
+          // ── World ranking card ─────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: _WorldRankCard(anim: _chartAnim),
+              child: _data == null
+                  ? const SizedBox()
+                  : _WorldRankCard(anim: _chartAnim, data: _data!),
             ),
           ),
 
@@ -220,7 +213,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
   }
 }
 
-// â”€â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Header ──────────────────────────────────────────────────────────────────────
 
 class _AnalyticsHeader extends StatelessWidget {
   const _AnalyticsHeader({required this.onBack});
@@ -228,10 +221,8 @@ class _AnalyticsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 24, 20),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 24, 20),
         child: Row(
           children: [
             GestureDetector(
@@ -261,7 +252,6 @@ class _AnalyticsHeader extends StatelessWidget {
                 ],
               ),
             ),
-            // Filter chip
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
@@ -272,11 +262,7 @@ class _AnalyticsHeader extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.tune_rounded,
-                    size: 14,
-                    color: AppColors.textSecondary,
-                  ),
+                  Icon(Icons.tune_rounded, size: 14, color: AppColors.textSecondary),
                   const SizedBox(width: 6),
                   Text('This week', style: AppTextStyles.labelLG),
                 ],
@@ -284,49 +270,86 @@ class _AnalyticsHeader extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }
 
-// â”€â”€â”€ Top Stats Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Top Stats Row ───────────────────────────────────────────────────────────────
 
 class _TopStatsRow extends StatelessWidget {
+  const _TopStatsRow({required this.data});
+  final AnalyticsData data;
+
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: StatTile(
-            value: '4h 20m',
-            label: 'Study time',
-            color: AppColors.amber,
-            icon: const Icon(Icons.timer_outlined),
-            trend: '+18%',
-            trendUp: true,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: StatTile(
+                value: data.studyTimeMinutes == 0
+                    ? '0m'
+                    : '${data.studyTimeMinutes ~/ 60}h ${data.studyTimeMinutes % 60}m',
+                label: 'Study time',
+                color: AppColors.amber,
+                icon: const Icon(Icons.timer_outlined),
+                trend: '+18%',
+                trendUp: true,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: StatTile(
+                value: '#${data.worldRank}',
+                label: 'World rank',
+                color: AppColors.violet,
+                icon: const Icon(Icons.public_rounded),
+                trend: '+12',
+                trendUp: true,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: StatTile(
-            value: '186',
-            label: 'World rank',
-            color: AppColors.violet,
-            icon: const Icon(Icons.public_rounded),
-            trend: '+12',
-            trendUp: true,
-          ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: StatTile(
+                value: '${data.totalDocuments}',
+                label: 'Documents',
+                color: AppColors.success,
+                icon: const Icon(Icons.description_outlined),
+                trend: '',
+                trendUp: true,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: StatTile(
+                value: data.totalQuizzesTaken == 0
+                    ? '0%'
+                    : '${(data.accuracy * 100).toInt()}%',
+                label: 'Quiz accuracy',
+                color: AppColors.error,
+                icon: const Icon(Icons.quiz_outlined),
+                trend: '${data.totalQuizzesTaken} taken',
+                trendUp: data.accuracy >= 0.6,
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 }
 
-// â”€â”€â”€ Activity Chart Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Activity Chart Card ─────────────────────────────────────────────────────────
 
 class _ActivityChartCard extends StatelessWidget {
-  const _ActivityChartCard({required this.anim});
+  const _ActivityChartCard({required this.anim, required this.data});
   final Animation<double> anim;
+  final AnalyticsData data;
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +358,6 @@ class _ActivityChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Card header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -344,10 +366,14 @@ class _ActivityChartCard extends StatelessWidget {
                 children: [
                   Text('Activity', style: AppTextStyles.headingMD),
                   const SizedBox(height: 2),
-                  Text('30h 50m this week', style: AppTextStyles.bodyMD),
+                  Text(
+                    data.studyTimeMinutes == 0
+                        ? 'No sessions yet'
+                        : '${data.studyTimeMinutes ~/ 60}h ${data.studyTimeMinutes % 60}m this week',
+                    style: AppTextStyles.bodyMD,
+                  ),
                 ],
               ),
-              // Legend
               Row(
                 children: [
                   _LegendDot(color: AppColors.amber, label: 'Study'),
@@ -363,16 +389,23 @@ class _ActivityChartCard extends StatelessWidget {
           // Chart
           SizedBox(
             height: 140,
-            child: AnimatedBuilder(
-              animation: anim,
-              builder: (_, _) => CustomPaint(
-                size: const Size(double.infinity, 140),
-                painter: _BarChartPainter(
-                  data: _weekActivity,
-                  progress: anim.value,
-                ),
-              ),
-            ),
+            child: data.weekActivity.every((d) => d.minutes == 0)
+                ? Center(
+                    child: Text(
+                      'No activity yet — start studying!',
+                      style: AppTextStyles.bodyMD,
+                    ),
+                  )
+                : AnimatedBuilder(
+                    animation: anim,
+                    builder: (_, _) => CustomPaint(
+                      size: const Size(double.infinity, 140),
+                      painter: _BarChartPainter(
+                        data: data.weekActivity,
+                        progress: anim.value,
+                      ),
+                    ),
+                  ),
           ),
 
           const SizedBox(height: 12),
@@ -380,7 +413,7 @@ class _ActivityChartCard extends StatelessWidget {
           // Day labels
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: _weekActivity
+            children: data.weekActivity
                 .map(
                   (d) => Text(
                     d.day,
@@ -423,11 +456,11 @@ class _LegendDot extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Bar Chart Painter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Bar Chart Painter ───────────────────────────────────────────────────────────
 
 class _BarChartPainter extends CustomPainter {
   _BarChartPainter({required this.data, required this.progress});
-  final List<_DayActivity> data;
+  final List<DayActivity> data;
   final double progress;
 
   @override
@@ -435,11 +468,12 @@ class _BarChartPainter extends CustomPainter {
     if (data.isEmpty) return;
 
     final maxMinutes = data.map((d) => d.minutes).reduce(math.max).toDouble();
+    if (maxMinutes == 0) return;
+
     final barWidth = size.width / (data.length * 2 + 1);
     final spacing = barWidth;
     final maxHeight = size.height - 8;
 
-    // Horizontal guide lines
     final guidePaint = Paint()
       ..color = AppColors.border.withOpacityCompat(0.4)
       ..strokeWidth = 1;
@@ -460,12 +494,10 @@ class _BarChartPainter extends CustomPainter {
         topRight: const Radius.circular(6),
       );
 
-      // Determine bar colour â€” alternate amber/violet for variety
       final isAccent =
           data[i].minutes == maxMinutes || data[i].minutes > maxMinutes * 0.7;
       final barColor = isAccent ? AppColors.amber : AppColors.violet;
 
-      // Bar fill
       final barPaint = Paint()
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
@@ -475,7 +507,6 @@ class _BarChartPainter extends CustomPainter {
 
       canvas.drawRRect(rect, barPaint);
 
-      // Glow at top of bar
       if (progress > 0.8 && isAccent) {
         final glowPaint = Paint()
           ..color = barColor.withOpacityCompat(0.35)
@@ -493,15 +524,27 @@ class _BarChartPainter extends CustomPainter {
   bool shouldRepaint(_BarChartPainter old) => old.progress != progress;
 }
 
-// â”€â”€â”€ Streak + Time Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Streak + Time Row ───────────────────────────────────────────────────────────
 
 class _StreakTimeRow extends StatelessWidget {
-  const _StreakTimeRow({required this.anim});
+  const _StreakTimeRow({required this.anim, required this.data});
   final Animation<double> anim;
+  final AnalyticsData data;
 
   @override
   Widget build(BuildContext context) {
+    // Calculate streak from heatmap (last N consecutive non-zero days from end)
+    int streak = 0;
+    for (int i = data.heatmap.length - 1; i >= 0; i--) {
+      if (data.heatmap[i] > 0) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Streak card
         Expanded(
@@ -516,24 +559,25 @@ class _StreakTimeRow extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Streak', style: AppTextStyles.headingSM),
-                    const Text('ðŸ”¥', style: TextStyle(fontSize: 20)),
+                    const Text('🔥', style: TextStyle(fontSize: 20)),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '8',
+                  '$streak',
                   style: AppTextStyles.statLG.copyWith(color: AppColors.amber),
                 ),
                 Text('days in a row', style: AppTextStyles.bodyMD),
                 const SizedBox(height: 14),
 
-                // Mini week dots - wrapped to prevent overflow
+                // Mini week dots
                 Wrap(
                   spacing: 4,
                   runSpacing: 4,
                   alignment: WrapAlignment.start,
                   children: List.generate(7, (i) {
-                    final done = i < 6;
+                    final idx = data.heatmap.length - 7 + i;
+                    final hasActivity = idx >= 0 && idx < data.heatmap.length && data.heatmap[idx] > 0;
                     return AnimatedBuilder(
                       animation: anim,
                       builder: (_, _) => AnimatedContainer(
@@ -542,12 +586,12 @@ class _StreakTimeRow extends StatelessWidget {
                         height: 28,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: done
+                          color: hasActivity
                               ? AppColors.amber.withOpacityCompat(
                                   anim.value.clamp(0.0, 1.0),
                                 )
                               : AppColors.border,
-                          boxShadow: done && anim.value > 0.8
+                          boxShadow: hasActivity && anim.value > 0.8
                               ? [
                                   BoxShadow(
                                     color: AppColors.amber.withOpacityCompat(0.4),
@@ -560,7 +604,7 @@ class _StreakTimeRow extends StatelessWidget {
                           child: Text(
                             ['M', 'T', 'W', 'T', 'F', 'S', 'S'][i],
                             style: AppTextStyles.labelMD.copyWith(
-                              color: done
+                              color: hasActivity
                                   ? AppColors.textInverse
                                   : AppColors.textTertiary,
                               fontSize: 9,
@@ -610,28 +654,31 @@ class _StreakTimeRow extends StatelessWidget {
                       children: [
                         AnimatedBuilder(
                           animation: anim,
-                          builder: (_, _) => CircularProgressIndicator(
-                            value: 0.67 * anim.value,
-                            strokeWidth: 7,
-                            color: AppColors.violet,
-                            backgroundColor: AppColors.border,
-                            strokeCap: StrokeCap.round,
-                          ),
+                          builder: (_, _) {
+                            final goalMins = 7 * 60; // 7h weekly goal
+                            final ratio = (data.studyTimeMinutes / goalMins)
+                                .clamp(0.0, 1.0);
+                            return CircularProgressIndicator(
+                              value: ratio * anim.value,
+                              strokeWidth: 7,
+                              color: AppColors.violet,
+                              backgroundColor: AppColors.border,
+                              strokeCap: StrokeCap.round,
+                            );
+                          },
                         ),
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              '16h',
+                              '${data.studyTimeMinutes ~/ 60}h',
                               style: AppTextStyles.statMD.copyWith(
                                 color: AppColors.violet,
                               ),
                             ),
                             Text(
                               'this week',
-                              style: AppTextStyles.labelMD.copyWith(
-                                fontSize: 8,
-                              ),
+                              style: AppTextStyles.labelMD.copyWith(fontSize: 8),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -643,9 +690,13 @@ class _StreakTimeRow extends StatelessWidget {
 
                 const SizedBox(height: 14),
 
-                // Daily average
                 Center(
-                  child: Text('Avg 2h 17m / day', style: AppTextStyles.bodyMD),
+                  child: Text(
+                    data.studyTimeMinutes == 0
+                        ? 'No sessions yet'
+                        : 'Avg ${data.studyTimeMinutes ~/ 7}m / day',
+                    style: AppTextStyles.bodyMD,
+                  ),
                 ),
               ],
             ),
@@ -656,7 +707,35 @@ class _StreakTimeRow extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Subject Mastery Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Empty Subjects Card ─────────────────────────────────────────────────────────
+
+class _EmptySubjectsCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return PeckCard(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Icon(Icons.auto_stories_rounded,
+              size: 36, color: AppColors.textTertiary),
+          const SizedBox(height: 12),
+          Text(
+            'No subjects yet',
+            style: AppTextStyles.headingSM,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Scan a note to generate flashcards and build subject mastery.',
+            style: AppTextStyles.bodyMD,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Subject Mastery Row ─────────────────────────────────────────────────────────
 
 class _SubjectMasteryRow extends StatelessWidget {
   const _SubjectMasteryRow({
@@ -664,39 +743,36 @@ class _SubjectMasteryRow extends StatelessWidget {
     required this.anim,
     required this.rank,
   });
-  final _SubjectMastery subject;
+  final SubjectMastery subject;
   final Animation<double> anim;
   final int rank;
 
   @override
   Widget build(BuildContext context) {
+    final color = Color(subject.colorValue);
     return PeckCard(
       padding: const EdgeInsets.all(16),
-      borderColor: subject.color.withOpacityCompat(0.18),
+      borderColor: color.withOpacityCompat(0.18),
       child: Column(
         children: [
           Row(
             children: [
-              // Subject icon
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: subject.color.withOpacityCompat(0.12),
+                  color: color.withOpacityCompat(0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
                   child: Text(
-                    subject.subject[0],
-                    style: AppTextStyles.headingMD.copyWith(
-                      color: subject.color,
-                    ),
+                    subject.subject.isNotEmpty ? subject.subject[0] : '?',
+                    style: AppTextStyles.headingMD.copyWith(color: color),
                   ),
                 ),
               ),
               const SizedBox(width: 14),
 
-              // Name + cards
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -707,10 +783,9 @@ class _SubjectMasteryRow extends StatelessWidget {
                 ),
               ),
 
-              // Percentage
               Text(
                 '${(subject.mastery * 100).toInt()}%',
-                style: AppTextStyles.headingMD.copyWith(color: subject.color),
+                style: AppTextStyles.headingMD.copyWith(color: color),
               ),
             ],
           ),
@@ -735,12 +810,12 @@ class _SubjectMasteryRow extends StatelessWidget {
                     height: 6,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [subject.color, subject.color.withOpacityCompat(0.6)],
+                        colors: [color, color.withOpacityCompat(0.6)],
                       ),
                       borderRadius: BorderRadius.circular(3),
                       boxShadow: [
                         BoxShadow(
-                          color: subject.color.withOpacityCompat(0.45),
+                          color: color.withOpacityCompat(0.45),
                           blurRadius: 6,
                         ),
                       ],
@@ -756,11 +831,11 @@ class _SubjectMasteryRow extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Heatmap Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Heatmap Card ────────────────────────────────────────────────────────────────
 
 class _HeatmapCard extends StatelessWidget {
   const _HeatmapCard({required this.data});
-  final List<int> data; // values 0â€“4
+  final List<int> data; // values 0–4
 
   static const _days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
@@ -776,8 +851,7 @@ class _HeatmapCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 5 weeks Ã— 7 days = 35 cells
-    final weeks = 5;
+    const weeks = 5;
 
     return PeckCard(
       padding: const EdgeInsets.all(20),
@@ -867,11 +941,12 @@ class _HeatmapCard extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ World Rank Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── World Rank Card ─────────────────────────────────────────────────────────────
 
 class _WorldRankCard extends StatelessWidget {
-  const _WorldRankCard({required this.anim});
+  const _WorldRankCard({required this.anim, required this.data});
   final Animation<double> anim;
+  final AnalyticsData data;
 
   @override
   Widget build(BuildContext context) {
@@ -906,14 +981,16 @@ class _WorldRankCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '#186',
+                  '#${data.worldRank}',
                   style: AppTextStyles.statLG.copyWith(color: AppColors.violet),
                 ),
                 const SizedBox(height: 4),
-                Text('You are the 186th', style: AppTextStyles.bodyMD),
+                Text('Keep studying to rank up 🌍', style: AppTextStyles.bodyMD),
                 const SizedBox(height: 2),
                 Text(
-                  'Top 2% worldwide ðŸŒ',
+                  data.studyTimeMinutes > 0
+                      ? 'Active learner 📈'
+                      : 'Start scanning notes!',
                   style: AppTextStyles.bodySM.copyWith(
                     color: AppColors.success,
                   ),
@@ -941,7 +1018,7 @@ class _WorldRankCard extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Sparkline Painter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Sparkline Painter ───────────────────────────────────────────────────────────
 
 class _SparklinePainter extends CustomPainter {
   _SparklinePainter({required this.progress});
@@ -955,7 +1032,6 @@ class _SparklinePainter extends CustomPainter {
 
     final stepX = size.width / (_points.length - 1);
 
-    // Build path
     final path = Path();
     for (var i = 0; i < _points.length; i++) {
       final x = i * stepX;
@@ -971,11 +1047,9 @@ class _SparklinePainter extends CustomPainter {
       }
     }
 
-    // Clip to progress
     canvas.save();
     canvas.clipRect(Rect.fromLTWH(0, 0, size.width * progress, size.height));
 
-    // Fill under line
     final fillPath = Path.from(path)
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
@@ -988,7 +1062,6 @@ class _SparklinePainter extends CustomPainter {
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawPath(fillPath, fillPaint);
 
-    // Line
     final linePaint = Paint()
       ..color = AppColors.violet
       ..strokeWidth = 2.5
@@ -997,15 +1070,10 @@ class _SparklinePainter extends CustomPainter {
       ..strokeJoin = StrokeJoin.round;
     canvas.drawPath(path, linePaint);
 
-    // Dot at latest point
     if (progress > 0.9) {
       final lastX = (_points.length - 1) * stepX;
       final lastY = size.height * (1 - _points.last);
-      canvas.drawCircle(
-        Offset(lastX, lastY),
-        5,
-        Paint()..color = AppColors.violet,
-      );
+      canvas.drawCircle(Offset(lastX, lastY), 5, Paint()..color = AppColors.violet);
       canvas.drawCircle(Offset(lastX, lastY), 3, Paint()..color = Colors.white);
     }
 
@@ -1014,5 +1082,96 @@ class _SparklinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_SparklinePainter old) => old.progress != progress;
+}
+
+// ─── Loading Shimmer ─────────────────────────────────────────────────────────
+
+class _LoadingShimmer extends StatefulWidget {
+  @override
+  State<_LoadingShimmer> createState() => _LoadingShimmerState();
+}
+
+class _LoadingShimmerState extends State<_LoadingShimmer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))
+      ..repeat();
+    _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, __) {
+        final shimmerColor = Color.lerp(AppColors.bgCard, AppColors.bgSurface, _anim.value)!;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  _ShimmerBox(w: 40, h: 40, color: shimmerColor, radius: 12),
+                  const SizedBox(width: 16),
+                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    _ShimmerBox(w: 100, h: 12, color: shimmerColor, radius: 6),
+                    const SizedBox(height: 6),
+                    _ShimmerBox(w: 160, h: 20, color: shimmerColor, radius: 6),
+                  ]),
+                ]),
+                const SizedBox(height: 28),
+                Row(children: [
+                  Expanded(child: _ShimmerBox(w: double.infinity, h: 80, color: shimmerColor, radius: 16)),
+                  const SizedBox(width: 12),
+                  Expanded(child: _ShimmerBox(w: double.infinity, h: 80, color: shimmerColor, radius: 16)),
+                ]),
+                const SizedBox(height: 20),
+                _ShimmerBox(w: double.infinity, h: 200, color: shimmerColor, radius: 18),
+                const SizedBox(height: 20),
+                Row(children: [
+                  Expanded(child: _ShimmerBox(w: double.infinity, h: 160, color: shimmerColor, radius: 16)),
+                  const SizedBox(width: 12),
+                  Expanded(child: _ShimmerBox(w: double.infinity, h: 160, color: shimmerColor, radius: 16)),
+                ]),
+                const SizedBox(height: 20),
+                _ShimmerBox(w: 140, h: 18, color: shimmerColor, radius: 6),
+                const SizedBox(height: 12),
+                _ShimmerBox(w: double.infinity, h: 70, color: shimmerColor, radius: 16),
+                const SizedBox(height: 10),
+                _ShimmerBox(w: double.infinity, h: 70, color: shimmerColor, radius: 16),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ShimmerBox extends StatelessWidget {
+  const _ShimmerBox({required this.w, required this.h, required this.color, required this.radius});
+  final double w;
+  final double h;
+  final Color color;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: w == double.infinity ? null : w,
+        height: h,
+        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(radius)),
+      );
 }
 

@@ -5,6 +5,7 @@ import '../../core/settings/app_settings_scope.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_card.dart';
+import 'model_health_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -95,6 +96,34 @@ class SettingsScreen extends StatelessWidget {
                   enabled: settings.studyReminderEnabled,
                   onChanged: (value) =>
                       settings.setStudyMinutes(value.round()),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          _SectionHeader(title: 'AI', icon: Icons.auto_awesome_outlined),
+          const SizedBox(height: 12),
+          PeckCard(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _SwitchRow(
+                  title: 'Fast mode',
+                  subtitle: 'Faster results with fewer tokens and cards.',
+                  value: settings.aiFastMode,
+                  onChanged: settings.setAiFastMode,
+                ),
+                Divider(height: 24, color: AppColors.border),
+                _NavRow(
+                  title: 'Model health',
+                  subtitle: 'Verify bundled ONNX model and runtime.',
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ModelHealthScreen(),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -253,6 +282,40 @@ class _TimeRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _NavRow extends StatelessWidget {
+  const _NavRow({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTextStyles.bodyMDMedium),
+                const SizedBox(height: 4),
+                Text(subtitle, style: AppTextStyles.bodySM),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
+        ],
+      ),
     );
   }
 }

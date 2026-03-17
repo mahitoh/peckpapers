@@ -1,4 +1,4 @@
-﻿// lib/core/theme/app_colors.dart
+// lib/core/theme/app_colors.dart
 
 import 'package:flutter/material.dart';
 
@@ -274,11 +274,20 @@ class AppColors {
   ];
 
   static List<BoxShadow> get violetShadow => primaryShadow;
+
+  static Color subjectToColor(String subject) {
+    final s = subject.toLowerCase();
+    if (s.contains('math') || s.contains('calc')) return primary;
+    if (s.contains('chem') || s.contains('physics')) return accentOrange;
+    if (s.contains('hist') || s.contains('geo')) return accentGreen;
+    if (s.contains('bio') || s.contains('med')) return secondary;
+    if (s.contains('lit') || s.contains('art')) return accentBlue;
+    return primary;
+  }
 }
 extension ColorOpacityCompat on Color {
   Color withOpacityCompat(double opacity) {
-    final alpha = (opacity * 255).round().clamp(0, 255);
-    return withValues(alpha: alpha.toDouble());
+    return withValues(alpha: opacity);
   }
 }
 

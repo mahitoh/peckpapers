@@ -1,12 +1,33 @@
-﻿// lib/features/scanner/scanner_screen.dart
+// lib/features/scanner/scanner_screen.dart
 
 import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:printing/printing.dart';
+import 'package:path_provider/path_provider.dart';
+import '../../core/ai/ai_models.dart';
+import '../../core/ai/offline_ai_service.dart';
+import '../../core/flashcards/local_flashcard_repository.dart';
+import '../../core/flashcards/offline_flashcard_generator.dart';
+import '../../core/library/library_service_adapter.dart';
+import '../../core/ocr/mlkit_ocr_service.dart';
+import '../../core/pdf/peck_pdf_service.dart';
+import '../../core/scan/basic_perspective_corrector.dart';
+import '../../core/scan/mlkit_edge_detector.dart';
+import '../../core/scan/scan_models.dart';
+import '../../core/scan/scan_pipeline.dart';
+import '../../core/study/study_pack_builder.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_button.dart';
+import '../../core/settings/app_settings_scope.dart';
+import '../flashcards/flashcards_screen.dart';
 import '../pdf/pdf_preview_screen.dart';
 
 // â”€â”€â”€ Scanner states â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -18,8 +39,7 @@ enum _ScanState {
   error, // Something went wrong
 }
 
-// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
+// Screen
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key, this.onSaved, this.onBack});
 
@@ -35,11 +55,17 @@ class _ScannerScreenState extends State<ScannerScreen>
   CameraController? _camCtrl;
   bool _camReady = false;
   final _picker = ImagePicker();
-  XFile? _pickedImage;
+  List<XFile> _pickedImages = [];
 
   _ScanState _state = _ScanState.idle;
   double _progress = 0.0;
   String _extractedText = '';
+  ScanResult? _lastScanResult;
+
+  late final ScanPipeline _scanPipeline;
+  late final StudyPackBuilder _studyPackBuilder;
+  final LocalFlashcardRepository _flashcardRepository =
+      LocalFlashcardRepository();
 
   // Scan line animation â€” bounces top â†’ bottom inside the frame
   late AnimationController _scanLineCtrl;
@@ -62,7 +88,22 @@ class _ScannerScreenState extends State<ScannerScreen>
   void initState() {
     super.initState();
     _initAnimations();
+    _initServices();
     _initCamera();
+  }
+
+  void _initServices() {
+    _scanPipeline = const ScanPipeline(
+      edgeDetector: MlKitEdgeDetector(),
+      perspectiveCorrector: BasicPerspectiveCorrector(),
+      ocrService: MlKitOcrService(),
+    );
+    _studyPackBuilder = StudyPackBuilder(
+      pdfService: const PeckPdfService(),
+      libraryRepository: LibraryServiceAdapter(),
+      flashcardGenerator: OfflineFlashcardGenerator(),
+      flashcardRepository: _flashcardRepository,
+    );
   }
 
   void _initAnimations() {
@@ -86,11 +127,6 @@ class _ScannerScreenState extends State<ScannerScreen>
     );
     _progressCtrl.addListener(() {
       setState(() => _progress = _progressAnim.value);
-    });
-    _progressCtrl.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        _onScanComplete();
-      }
     });
 
     // â”€â”€ Capture button pulse â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -142,54 +178,277 @@ class _ScannerScreenState extends State<ScannerScreen>
 
   Future<void> _pickFromGallery() async {
     if (_state == _ScanState.scanning) return;
-    final image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image == null) return;
+    final images = await _picker.pickMultiImage();
+    if (images.isEmpty) return;
     setState(() {
-      _pickedImage = image;
+      _pickedImages = images;
       _state = _ScanState.idle;
     });
   }
 
+  Future<void> _pickPdf() async {
+    if (_state == _ScanState.scanning) return;
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['pdf'],
+      withData: true,
+    );
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.single;
+    try {
+      final text = await _extractPdfText(file);
+      if (!mounted) return;
+      setState(() {
+        _pickedImages = [];
+        _extractedText = text;
+        _lastScanResult = ScanResult(
+          pages: const [],
+          fullText: text.trim(),
+          metadata: const {'source': 'pdf'},
+        );
+        _state = _ScanState.done;
+      });
+      _showSaveSheet();
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _state = _ScanState.error);
+    }
+  }
+
+  Future<String> _extractPdfText(PlatformFile file) async {
+    final bytes = await _readPdfBytes(file);
+    if (bytes == null || bytes.isEmpty) return '';
+
+    final document = PdfDocument(inputBytes: bytes);
+    try {
+      final extractor = PdfTextExtractor(document);
+      String text = extractor.extractText();
+      if (text.trim().isEmpty) {
+        text = await _ocrPdfBytes(bytes);
+      }
+      return text;
+    } finally {
+      document.dispose();
+    }
+  }
+
+  Future<String> _ocrPdfBytes(List<int> bytes) async {
+    final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+    final buffer = StringBuffer();
+    try {
+      final tempDir = await getTemporaryDirectory();
+      int i = 0;
+      final uint8Bytes = bytes is Uint8List ? bytes : Uint8List.fromList(bytes);
+      await for (final page in Printing.raster(uint8Bytes, dpi: 150)) {
+        final pngBytes = await page.toPng();
+        final tempFile = File('${tempDir.path}/page_${i++}.png');
+        await tempFile.writeAsBytes(pngBytes);
+        final inputImage = InputImage.fromFilePath(tempFile.path);
+        final recognizedText = await textRecognizer.processImage(inputImage);
+        buffer.writeln(recognizedText.text);
+        await tempFile.delete();
+      }
+    } catch (_) {} finally {
+      textRecognizer.close();
+    }
+    return buffer.toString();
+  }
+
+  Future<List<int>?> _readPdfBytes(PlatformFile file) async {
+    if (file.bytes != null) return file.bytes;
+    if (file.path == null || file.path!.isEmpty) return null;
+    return File(file.path!).readAsBytes();
+  }
   Future<void> _captureAndScan() async {
     if (_state != _ScanState.idle) return;
-    if (!_camReady && _pickedImage == null) return;
+    if (!_camReady && _pickedImages.isEmpty) return;
 
     setState(() {
       _state = _ScanState.scanning;
       _progress = 0.0;
     });
 
-    // Simulate OCR processing â€” replace with real ML Kit call
     _progressCtrl.forward(from: 0);
+    try {
+      final images = await _gatherScanImages();
+      if (images.isEmpty) {
+        _progressCtrl.stop();
+        if (!mounted) return;
+        setState(() => _state = _ScanState.error);
+        return;
+      }
+
+      final scanResult = await _scanPipeline.process(images);
+      final text = scanResult.fullText.trim();
+
+      _progressCtrl.stop();
+      if (!mounted) return;
+      setState(() {
+        _extractedText =
+            text.isEmpty ? 'No readable text found.' : text;
+        _lastScanResult = scanResult;
+        _state = _ScanState.done;
+      });
+      _showSaveSheet();
+    } catch (_) {
+      _progressCtrl.stop();
+      if (!mounted) return;
+      setState(() => _state = _ScanState.error);
+    }
   }
 
-  void _onScanComplete() {
-    // Simulate extracted text â€” replace with real OCR result
-    setState(() {
-      _extractedText =
-          'Sample extracted text from your notes. '
-          'Integration by parts: âˆ«u dv = uv âˆ’ âˆ«v du. '
-          'Remember to check boundary conditions.';
-      _state = _ScanState.done;
-    });
-    _showSaveSheet();
+  Future<List<ScanImage>> _gatherScanImages() async {
+    final images = <ScanImage>[];
+    if (_pickedImages.isNotEmpty) {
+      final source =
+          _pickedImages.length > 1 ? ScanSource.batch : ScanSource.gallery;
+      for (final image in _pickedImages) {
+        images.add(await _scanImageFromFile(image, source: source));
+      }
+      return images;
+    }
+
+    if (_camCtrl != null) {
+      final shot = await _camCtrl!.takePicture();
+      images.add(await _scanImageFromFile(shot, source: ScanSource.camera));
+    }
+    return images;
   }
 
-  void _openPdfPreview({required String title, required String subject}) {
+  Future<ScanImage> _scanImageFromFile(
+    XFile imageFile, {
+    required ScanSource source,
+  }) async {
+    final bytes = await File(imageFile.path).readAsBytes();
+    final codec = await instantiateImageCodec(bytes);
+    final frame = await codec.getNextFrame();
+    return ScanImage(
+      id: 'img_${DateTime.now().microsecondsSinceEpoch}_${imageFile.name}',
+      path: imageFile.path,
+      width: frame.image.width,
+      height: frame.image.height,
+      source: source,
+    );
+  }
+
+  Future<void> _generateAndOpenStudyPack({
+    required ScanResult scanResult,
+    required String title,
+    required String subject,
+    required bool fastMode,
+  }) async {
+    debugPrint('[_generateAndOpenStudyPack] Starting...');
     final safeTitle = title.trim().isEmpty ? 'Untitled Scan' : title.trim();
-    final safeSubject =
-        subject.trim().isEmpty ? 'General' : subject.trim();
+    final safeSubject = subject.trim().isEmpty ? 'General' : subject.trim();
+    final message = ValueNotifier<String>('Generating summary...');
+    _showLoading(message);
+    SummaryResult summary;
+    StudyPack pack;
+    try {
+      message.value = 'Generating summary...';
+      summary = await OfflineAiService.instance.summarize(
+        scanResult.fullText,
+        maxBullets: fastMode ? 3 : 6,
+      );
+      debugPrint('[_generateAndOpenStudyPack] Summary generated successfully.');
+      message.value = 'Building study pack...';
+      pack = await _studyPackBuilder.buildFromScan(
+        scanResult: scanResult,
+        title: safeTitle,
+        subject: safeSubject,
+        now: DateTime.now(),
+        generateCards: true,
+        cardCount: fastMode ? 4 : 8,
+        summary: summary.summary,
+        bullets: summary.bullets,
+        sections: summary.sections,
+        footer: 'Generated by PeckPapers (local device)',
+      );
+    } catch (e, s) {
+      debugPrint('[_generateAndOpenStudyPack] Error: $e\n$s');
+      summary = const SummaryResult(
+        summary: 'Summary not available.',
+        bullets: [],
+      );
+      pack = await _studyPackBuilder.buildFromScan(
+        scanResult: scanResult,
+        title: safeTitle,
+        subject: safeSubject,
+        now: DateTime.now(),
+        generateCards: false,
+        summary: summary.summary,
+        bullets: summary.bullets,
+        sections: summary.sections,
+        footer: 'Generated by PeckPapers (local device)',
+      );
+    }
+    if (!mounted) return;
+    Navigator.pop(context);
+
+    final deck = pack.deck;
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => PdfPreviewScreen(
           title: safeTitle,
           subtitle: safeSubject,
-          body: _extractedText,
-          bullets: [
-            'Source: camera scan (local only)',
-            'Words extracted: ${_extractedText.split(' ').length}',
-          ],
+          body: summary.summary.isEmpty
+              ? scanResult.fullText
+              : summary.summary,
+          bullets: summary.bullets,
           footer: 'Generated by PeckPapers (local device)',
+          primaryActionLabel: deck == null ? null : 'Open Flashcards',
+          onPrimaryAction: deck == null
+              ? null
+              : () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => FlashcardsScreen(
+                        deck: deck.cards
+                            .map(
+                              (c) => FlashcardData(
+                                    id: c.id,
+                                    question: c.question,
+                                    answer: c.answer,
+                                    subject: c.subject,
+                                    hint: c.hint,
+                                  ),
+                            )
+                            .toList(),
+                        deckTitle: deck.title,
+                        repository: _flashcardRepository,
+                      ),
+                    ),
+                  );
+                },
+        ),
+      ),
+    );
+  }
+
+  void _showLoading(ValueNotifier<String> message) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Center(
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.bgCard,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: ValueListenableBuilder<String>(
+            valueListenable: message,
+            builder: (_, value, _) => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 12),
+                Text(value, style: AppTextStyles.bodyMD),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -200,7 +459,8 @@ class _ScannerScreenState extends State<ScannerScreen>
     setState(() {
       _state = _ScanState.idle;
       _progress = 0.0;
-      _pickedImage = null;
+      _pickedImages = [];
+      _lastScanResult = null;
     });
   }
 
@@ -212,8 +472,20 @@ class _ScannerScreenState extends State<ScannerScreen>
       builder: (_) => _SaveSheet(
         extractedText: _extractedText,
         onSave: (title, subject) {
+          final settings = AppSettingsScope.of(context);
+          final scanResult = _lastScanResult ??
+              ScanResult(
+                pages: const [],
+                fullText: _extractedText,
+                metadata: const {'source': 'manual'},
+              );
           Navigator.pop(context);
-          _openPdfPreview(title: title, subject: subject);
+          _generateAndOpenStudyPack(
+            scanResult: scanResult,
+            title: title,
+            subject: subject,
+            fastMode: settings.aiFastMode,
+          );
           widget.onSaved?.call();
         },
         onDiscard: () {
@@ -248,9 +520,9 @@ class _ScannerScreenState extends State<ScannerScreen>
         fit: StackFit.expand,
         children: [
           // â”€â”€ Camera preview / placeholder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-          if (_pickedImage != null)
+          if (_pickedImages.isNotEmpty)
             Image.file(
-              File(_pickedImage!.path),
+              File(_pickedImages.first.path),
               fit: BoxFit.cover,
             )
           else if (_camReady)
@@ -315,7 +587,7 @@ class _ScannerScreenState extends State<ScannerScreen>
             top: MediaQuery.of(context).padding.top + 122,
             left: 24,
             right: 24,
-            child: _ScanTipCard(hasGallery: _pickedImage != null),
+            child: _ScanTipCard(imageCount: _pickedImages.length),
           ),
 
           // â”€â”€ Bottom controls â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -330,6 +602,7 @@ class _ScannerScreenState extends State<ScannerScreen>
               onCapture: _captureAndScan,
               onReset: _reset,
               onPickGallery: _pickFromGallery,
+              onPickPdf: _pickPdf,
             ),
           ),
         ],
@@ -809,8 +1082,8 @@ class _TitlePrompt extends StatelessWidget {
 }
 
 class _ScanTipCard extends StatelessWidget {
-  const _ScanTipCard({required this.hasGallery});
-  final bool hasGallery;
+  const _ScanTipCard({required this.imageCount});
+  final int imageCount;
 
   @override
   Widget build(BuildContext context) {
@@ -847,8 +1120,8 @@ class _ScanTipCard extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              hasGallery
-                  ? 'Gallery image loaded. Tap scan to extract text.'
+              imageCount > 0
+                  ? 'Loaded $imageCount image${imageCount == 1 ? '' : 's'}. Tap scan to extract text.'
                   : 'Keep the page inside the frame for best results.',
               style: AppTextStyles.bodySM.copyWith(
                 color: Colors.white.withOpacityCompat(0.75),
@@ -871,6 +1144,7 @@ class _BottomControls extends StatelessWidget {
     required this.onCapture,
     required this.onReset,
     required this.onPickGallery,
+    required this.onPickPdf,
   });
   final _ScanState state;
   final double progress;
@@ -878,6 +1152,7 @@ class _BottomControls extends StatelessWidget {
   final VoidCallback onCapture;
   final VoidCallback onReset;
   final VoidCallback onPickGallery;
+  final VoidCallback onPickPdf;
 
   @override
   Widget build(BuildContext context) {
@@ -931,9 +1206,9 @@ class _BottomControls extends StatelessWidget {
 
               // Voice note
               _SecondaryBtn(
-                icon: Icons.mic_none_rounded,
-                label: 'Voice',
-                onTap: () {},
+                icon: Icons.picture_as_pdf_rounded,
+                label: 'PDF',
+                onTap: onPickPdf,
               ),
             ],
           ),

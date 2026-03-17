@@ -8,11 +8,24 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_button.dart';
 import '../../core/widgets/peck_badge.dart';
 import '../../core/widgets/glow_container.dart';
+import '../../core/flashcards/flashcard_models.dart';
+import '../../core/flashcards/flashcard_repository.dart';
+import '../../core/flashcards/local_flashcard_repository.dart';
+import '../../core/flashcards/srs_scheduler.dart';
+import '../../core/services/analytics_service.dart';
+import '../../core/widgets/peck_card.dart';
+import '../../core/ai/ai_models.dart' as ai_models;
+import '../../core/quiz/local_quiz_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/ai/offline_ai_service.dart';
+import '../../core/services/library_service.dart';
+import '../quiz/quiz_screen.dart' as quiz_screen;
 
 // â”€â”€â”€ Data model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class FlashcardData {
   const FlashcardData({
+    required this.id,
     required this.question,
     required this.answer,
     required this.subject,
@@ -20,54 +33,26 @@ class FlashcardData {
     this.mastery = 0,
   });
 
+  final String id;
   final String question;
   final String answer;
   final String subject;
   final String? hint;
   final int mastery; // 0â€“5
+
+  FlashcardData copyWith({int? mastery}) {
+    return FlashcardData(
+      id: id,
+      question: question,
+      answer: answer,
+      subject: subject,
+      hint: hint,
+      mastery: mastery ?? this.mastery,
+    );
+  }
 }
 
-// â”€â”€â”€ Mock deck â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-const _mockDeck = [
-  FlashcardData(
-    question: 'What is integration by parts?',
-    answer:
-        'âˆ«u dv = uv âˆ’ âˆ«v du\n\nUsed when integrating a product of two functions. Choose u using LIATE: Logarithm, Inverse trig, Algebraic, Trig, Exponential.',
-    subject: 'Calculus',
-    hint: 'Think of it as the product rule in reverse.',
-    mastery: 3,
-  ),
-  FlashcardData(
-    question: 'Define the Fundamental Theorem of Calculus.',
-    answer:
-        'If F is an antiderivative of f on [a,b], then:\nâˆ«â‚áµ‡ f(x)dx = F(b) âˆ’ F(a)\n\nLinks differentiation and integration.',
-    subject: 'Calculus',
-    mastery: 1,
-  ),
-  FlashcardData(
-    question: 'What is L\'HÃ´pital\'s Rule?',
-    answer:
-        'If lim f(x)/g(x) gives 0/0 or âˆž/âˆž, then:\nlim f(x)/g(x) = lim f\'(x)/g\'(x)\n\nApply repeatedly until limit resolves.',
-    subject: 'Calculus',
-    hint: 'Only applies to indeterminate forms.',
-    mastery: 5,
-  ),
-  FlashcardData(
-    question: 'What does the chain rule state?',
-    answer:
-        'd/dx[f(g(x))] = f\'(g(x)) Â· g\'(x)\n\nThe derivative of a composite function â€” outside times derivative of inside.',
-    subject: 'Calculus',
-    mastery: 2,
-  ),
-  FlashcardData(
-    question: 'Define a limit formally (Îµ-Î´ definition).',
-    answer:
-        'lim xâ†’a f(x) = L means:\nFor every Îµ > 0 there exists Î´ > 0 such that\n0 < |xâˆ’a| < Î´ âŸ¹ |f(x)âˆ’L| < Îµ',
-    subject: 'Calculus',
-    mastery: 0,
-  ),
-];
 
 // â”€â”€â”€ Rating config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -85,9 +70,9 @@ class _Rating {
 }
 
 final _ratings = [
-  _Rating(label: 'Hard', emoji: 'ðŸ˜“', color: AppColors.error, quality: 1),
-  _Rating(label: 'Good', emoji: 'ðŸ™‚', color: AppColors.warning, quality: 3),
-  _Rating(label: 'Easy', emoji: 'ðŸš€', color: AppColors.success, quality: 5),
+  _Rating(label: 'Hard', emoji: '😞', color: AppColors.error, quality: 1),
+  _Rating(label: 'Good', emoji: '🙂', color: AppColors.warning, quality: 3),
+  _Rating(label: 'Easy', emoji: '🚀', color: AppColors.success, quality: 5),
 ];
 
 // â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -95,18 +80,24 @@ final _ratings = [
 class FlashcardsScreen extends StatefulWidget {
   const FlashcardsScreen({
     super.key,
-    this.deck = _mockDeck,
-    this.deckTitle = 'Calculus',
+    this.deck,
+    this.deckTitle,
+    this.docId,
     this.onFinished,
     this.onBack,
     this.onQuizTap,
+    this.repository,
+    this.scheduler,
   });
 
-  final List<FlashcardData> deck;
-  final String deckTitle;
+  final List<FlashcardData>? deck;
+  final String? deckTitle;
+  final String? docId;
   final VoidCallback? onFinished;
   final VoidCallback? onBack;
   final VoidCallback? onQuizTap;
+  final FlashcardRepository? repository;
+  final SrsScheduler? scheduler;
 
   @override
   State<FlashcardsScreen> createState() => _FlashcardsScreenState();
@@ -116,6 +107,12 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
     with TickerProviderStateMixin {
   int _index = 0;
   bool _flipped = false;
+  List<FlashcardData> _deck = [];
+  late final SrsScheduler _scheduler;
+  late DateTime _startTime;
+  List<FlashcardDeck> _allDecks = [];
+  bool _loading = false;
+  String? _selectedDocId;
 
   // Card flip
   late AnimationController _flipCtrl;
@@ -134,12 +131,20 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
   // Swipe drag offset
   double _dragDx = 0;
 
-  FlashcardData get _current => widget.deck[_index];
-  bool get _isLast => _index == widget.deck.length - 1;
+  FlashcardData get _current => _deck[_index];
+  bool get _isLast => _index == _deck.length - 1;
 
   @override
   void initState() {
     super.initState();
+    _scheduler = widget.scheduler ?? const SrsScheduler();
+    _startTime = DateTime.now();
+
+    if (widget.deck != null) {
+      _deck = List<FlashcardData>.from(widget.deck!);
+    } else {
+      _loadDecks();
+    }
 
     _flipCtrl = AnimationController(
       vsync: this,
@@ -174,7 +179,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
   }
 
   @override
-  void dispose() {
+  void dispose() { _logStudyTime();
     _flipCtrl.dispose();
     _enterCtrl.dispose();
     _ratingCtrl.dispose();
@@ -199,8 +204,14 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
 
   void _rate(int quality) {
     HapticFeedback.mediumImpact();
+    final last = _isLast;
+    _updateMastery(quality);
+    if (last) {
+      setState(() {});
+    }
+    _recordReview(quality);
 
-    if (_isLast) {
+    if (last) {
       widget.onFinished?.call();
       _showFinishSheet();
       return;
@@ -210,11 +221,116 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
       _flipped = false;
       _index++;
     });
+    _enterCtrl.forward(from: 0);
+  }
 
+  Future<void> _loadDecks() async {
+    setState(() => _loading = true);
+    final decks = await LocalFlashcardRepository.instance.fetchDecks();
+    if (mounted) {
+      setState(() {
+        _allDecks = decks;
+        _loading = false;
+      });
+    }
+  }
+
+  void _selectDeck(FlashcardDeck deck) {
+    setState(() {
+      _deck = deck.cards.map((c) => FlashcardData(
+        id: c.id,
+        question: c.question,
+        answer: c.answer,
+        subject: c.subject,
+        hint: c.hint,
+      )).toList();
+      _index = 0;
+      _selectedDocId = deck.docId;
+    });
     _flipCtrl.reset();
     _ratingCtrl.reset();
     _enterCtrl.reset();
     _enterCtrl.forward();
+  }
+
+
+  Future<void> _deleteDeck(FlashcardDeck deck) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: Text('Delete deck?', style: AppTextStyles.headingSM),
+        content: Text('This will permanently delete all cards in this deck.', style: AppTextStyles.bodyMD),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Delete', style: TextStyle(color: AppColors.error))),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+    final allDecks = await LocalFlashcardRepository.instance.fetchDecks();
+    final remaining = allDecks.where((d) => d.id != deck.id).toList();
+    // Clear and re-save remaining decks
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('flashcard_decks');
+    for (final d in remaining) await LocalFlashcardRepository.instance.saveDeck(d);
+    await _loadDecks();
+  }
+
+  Future<void> _regenerateDeck(FlashcardDeck deck) async {
+    if (deck.docId == null) return;
+    final docs = await LibraryService.instance.getDocuments();
+    final doc = docs.where((d) => d.id == deck.docId).firstOrNull;
+    if (doc == null || (doc.textContent ?? '').isEmpty) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No source text found for this deck.')));
+      return;
+    }
+    if (mounted) setState(() => _loading = true);
+    try {
+      final aiCards = await OfflineAiService.instance.generateFlashcards(doc.textContent!, subject: doc.subject, count: 15);
+      var idx = 0;
+      final mappedCards = aiCards.map((c) => Flashcard(id: 'card_regen_${DateTime.now().microsecondsSinceEpoch}_${idx++}', question: c.question, answer: c.answer, subject: c.subject ?? doc.subject, createdAt: DateTime.now())).toList();
+      final newDeck = FlashcardDeck(id: deck.id, title: deck.title, cards: mappedCards, createdAt: deck.createdAt, docId: deck.docId);
+      await LocalFlashcardRepository.instance.saveDeck(newDeck);
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cards regenerated!')));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+    }
+    await _loadDecks();
+  }
+
+  void _updateMastery(int quality) {
+    final current = _current;
+    final delta = quality >= 4 ? 1 : (quality <= 2 ? -1 : 0);
+    final nextMastery = (current.mastery + delta).clamp(0, 5);
+    _deck[_index] = current.copyWith(mastery: nextMastery);
+  }
+
+  void _logStudyTime() {
+    final duration = DateTime.now().difference(_startTime);
+    final minutes = duration.inMinutes;
+    if (minutes > 0) {
+      AnalyticsService.instance.logStudyTime(minutes);
+    } else if (duration.inSeconds > 30) {
+      // Log at least 1 minute if they spent more than 30 seconds
+      AnalyticsService.instance.logStudyTime(1);
+    }
+  }
+
+  Future<void> _recordReview(int quality) async {
+    final repo = widget.repository;
+    if (repo == null) return;
+    final card = _current;
+    final logs = await repo.fetchLogsForCard(card.id);
+    logs.sort((a, b) => a.reviewedAt.compareTo(b.reviewedAt));
+    final previous = logs.isEmpty ? null : logs.last;
+    final log = _scheduler.schedule(
+      cardId: card.id,
+      quality: quality,
+      now: DateTime.now(),
+      previous: previous,
+    );
+    await repo.saveReviewLog(log);
   }
 
   // â”€â”€ Swipe gesture â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -248,8 +364,9 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _FinishSheet(
-        total: widget.deck.length,
+        total: _deck.length,
         deckTitle: widget.deckTitle,
+        docId: widget.docId ?? _selectedDocId,
         onRestart: () {
           Navigator.pop(context);
           setState(() {
@@ -271,6 +388,82 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Show lobby (deck picker) when no deck is loaded yet
+    if (_deck.isEmpty) {
+      return Scaffold(
+        backgroundColor: AppColors.bgBase,
+        appBar: AppBar(
+          backgroundColor: AppColors.bgBase,
+          elevation: 0,
+          title: Text('Flashcard Decks', style: AppTextStyles.headingMD),
+          centerTitle: false,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            onPressed: widget.onBack ?? () => Navigator.pop(context),
+          ),
+        ),
+        body: _loading
+            ? _CardShimmer()
+            : _allDecks.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(40),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.style_outlined, size: 80, color: AppColors.border),
+                          const SizedBox(height: 24),
+                          Text('No decks found', style: AppTextStyles.headingMD),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Go to your library and select a document to generate flashcards.',
+                            style: AppTextStyles.bodyMD,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.all(24),
+                    itemCount: _allDecks.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 16),
+                    itemBuilder: (ctx, i) {
+                      final d = _allDecks[i];
+                      return PeckCard(
+                        onTap: () => _selectDeck(d),
+                        padding: const EdgeInsets.all(20),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: AppColors.amber.withOpacityCompat(0.12),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(Icons.style_rounded, color: AppColors.amber),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(d.title, style: AppTextStyles.headingSM),
+                                  const SizedBox(height: 4),
+                                  Text('${d.cards.length} cards', style: AppTextStyles.bodySM),
+                                ],
+                              ),
+                            ),
+                            PopupMenuButton<String>(icon: Icon(Icons.more_vert_rounded, color: AppColors.textTertiary, size: 20), onSelected: (v) { if (v == 'delete') _deleteDeck(d); else if (v == 'regen') _regenerateDeck(d); }, itemBuilder: (_) => [const PopupMenuItem(value: 'regen', child: Row(children: [Icon(Icons.refresh_rounded, size: 18), SizedBox(width: 8), Text('Regenerate cards')])), const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red), SizedBox(width: 8), Text('Delete deck', style: TextStyle(color: Colors.red))]))])
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+      );
+    }
+
     final size = MediaQuery.sizeOf(context);
 
     return Scaffold(
@@ -281,14 +474,14 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
             // â”€â”€ Top bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             _TopBar(
               title: widget.deckTitle,
-              onBack: widget.onBack ?? () => Navigator.pop(context),
+              onBack: widget.onBack ?? () { if (Navigator.canPop(context)) Navigator.pop(context); },
               onMore: () {},
             ),
 
             const SizedBox(height: 8),
 
             // â”€â”€ Progress row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            _ProgressRow(current: _index + 1, total: widget.deck.length),
+            _ProgressRow(current: _index + 1, total: _deck.length),
 
             const SizedBox(height: 32),
 
@@ -366,7 +559,7 @@ class _TopBar extends StatelessWidget {
     required this.onBack,
     required this.onMore,
   });
-  final String title;
+  final String? title;
   final VoidCallback onBack;
   final VoidCallback onMore;
 
@@ -388,7 +581,7 @@ class _TopBar extends StatelessWidget {
                     color: AppColors.textTertiary,
                   ),
                 ),
-                Text(title, style: AppTextStyles.headingLG),
+                Text(title ?? '', style: AppTextStyles.headingLG),
               ],
             ),
           ),
@@ -916,11 +1109,31 @@ class _FinishSheet extends StatelessWidget {
     required this.deckTitle,
     required this.onRestart,
     required this.onQuiz,
+    this.docId,
   });
   final int total;
-  final String deckTitle;
+  final String? deckTitle;
+  final String? docId;
   final VoidCallback onRestart;
   final VoidCallback onQuiz;
+
+  Future<void> _launchQuiz(BuildContext context) async {
+    final id = docId;
+    if (id == null) { onQuiz(); return; }
+    final allQuizzes = await LocalQuizRepository.instance.getAllQuizzes(id);
+    final hasQuizzes = allQuizzes.values.any((q) => q.isNotEmpty);
+    if (!context.mounted) return;
+    if (!hasQuizzes) { onQuiz(); return; }
+    Navigator.pop(context);
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _QuizDifficultySheet(
+        allQuizzes: allQuizzes,
+        deckTitle: deckTitle,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -979,7 +1192,7 @@ class _FinishSheet extends StatelessWidget {
           Text('Deck Complete!', style: AppTextStyles.displayMD),
           const SizedBox(height: 8),
           Text(
-            'You reviewed all $total cards in $deckTitle.',
+            'You reviewed all $total cards in ${deckTitle ?? 'this deck'}.',
             style: AppTextStyles.bodyMD,
             textAlign: TextAlign.center,
           ),
@@ -1011,7 +1224,7 @@ class _FinishSheet extends StatelessWidget {
 
           PeckButton(
             label: 'Take a Quiz',
-            onPressed: onQuiz,
+            onPressed: () => _launchQuiz(context),
             variant: PeckButtonVariant.primary,
             icon: const Icon(Icons.quiz_rounded),
           ),
@@ -1050,6 +1263,160 @@ class _FinishStat extends StatelessWidget {
           Text(label, style: AppTextStyles.labelMD),
         ],
       ),
+    );
+  }
+}
+
+// ─── Quiz Difficulty Picker ───────────────────────────────────────────────────
+
+class _QuizDifficultySheet extends StatelessWidget {
+  const _QuizDifficultySheet({
+    required this.allQuizzes,
+    this.deckTitle,
+  });
+  final Map<ai_models.QuestionDifficulty, List<ai_models.QuizQuestion>> allQuizzes;
+  final String? deckTitle;
+
+  void _launch(BuildContext context, ai_models.QuestionDifficulty difficulty) {
+    final raw = allQuizzes[difficulty] ?? [];
+    if (raw.isEmpty) return;
+    final questions = raw
+        .map((q) => quiz_screen.QuizQuestion(
+              question: q.question,
+              options: q.options,
+              correctIndex: q.correctIndex,
+              explanation: q.explanation,
+              subject: q.subject,
+            ))
+        .toList();
+    Navigator.pop(context);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => quiz_screen.QuizScreen(
+          questions: questions,
+          onBack: () => Navigator.pop(context),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final options = [
+      (difficulty: ai_models.QuestionDifficulty.easy, label: 'Easy', emoji: '😊', color: AppColors.success),
+      (difficulty: ai_models.QuestionDifficulty.medium, label: 'Medium', emoji: '🤔', color: AppColors.warning),
+      (difficulty: ai_models.QuestionDifficulty.difficult, label: 'Hard', emoji: '🔥', color: AppColors.error),
+    ];
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.bgCard,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      padding: EdgeInsets.fromLTRB(28, 20, 28, MediaQuery.of(context).padding.bottom + 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Center(
+            child: Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text('Choose Difficulty', style: AppTextStyles.headingMD),
+          const SizedBox(height: 8),
+          Text('Pick how hard you want the quiz to be', style: AppTextStyles.bodyMD),
+          const SizedBox(height: 24),
+          ...options.map((o) {
+            final count = allQuizzes[o.difficulty]?.length ?? 0;
+            if (count == 0) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: GestureDetector(
+                onTap: () => _launch(context, o.difficulty),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: o.color.withOpacityCompat(0.08),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: o.color.withOpacityCompat(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(o.emoji, style: const TextStyle(fontSize: 24)),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(o.label, style: AppTextStyles.headingSM.copyWith(color: o.color)),
+                            Text('$count questions', style: AppTextStyles.bodySM),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.arrow_forward_ios_rounded, size: 16, color: o.color),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+class _CardShimmer extends StatefulWidget {
+  @override
+  State<_CardShimmer> createState() => _CardShimmerState();
+}
+
+class _CardShimmerState extends State<_CardShimmer> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100))..repeat();
+    _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
+  }
+
+  @override
+  void dispose() { _ctrl.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, _) {
+        final c = Color.lerp(AppColors.bgCard, AppColors.bgSurface, _anim.value)!;
+        return Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: List.generate(3, (_) => Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Container(
+                height: 80,
+                decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(16)),
+              ),
+            )),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,4 +1,4 @@
-﻿// lib/main.dart
+// lib/main.dart
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +36,7 @@ class PeckPapersApp extends StatefulWidget {
 
 class _PeckPapersAppState extends State<PeckPapersApp> {
   bool _onboardingDone = false;
+  bool _bootstrapped = false;
 
   @override
   void initState() {
@@ -47,10 +48,16 @@ class _PeckPapersAppState extends State<PeckPapersApp> {
     try {
       await widget.settings.load();
       await LocalAuth.ensureAdmin();
-    } catch (error) {
-      if (kDebugMode) {
-        debugPrint('App bootstrap failed: $error');
+      final loggedIn = await LocalAuth.isLoggedIn();
+      if (mounted) {
+        setState(() {
+          _onboardingDone = loggedIn;
+          _bootstrapped = true;
+        });
       }
+    } catch (error) {
+      if (kDebugMode) debugPrint('App bootstrap failed: $error');
+      if (mounted) setState(() => _bootstrapped = true);
     }
   }
 
@@ -60,6 +67,12 @@ class _PeckPapersAppState extends State<PeckPapersApp> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_bootstrapped) {
+      return const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(body: Center(child: CircularProgressIndicator())),
+      );
+    }
     return AppSettingsScope(
       settings: widget.settings,
       child: AnimatedBuilder(
@@ -116,9 +129,7 @@ class _DeviceBanner extends StatelessWidget {
   }
 
   String _deviceLabel() {
-    if (kIsWeb) {
-      return 'WEB BROWSER';
-    }
+    if (kIsWeb) return 'WEB BROWSER';
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return 'ANDROID EMULATOR/DEVICE';
@@ -135,4 +146,3 @@ class _DeviceBanner extends StatelessWidget {
     }
   }
 }
-

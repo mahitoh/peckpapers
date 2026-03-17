@@ -10,6 +10,7 @@ import '../home/home_screen.dart';
 import '../scanner/scanner_screen.dart';
 import '../flashcards/flashcards_screen.dart';
 import '../analytics/analytics_screen.dart';
+import '../quiz/quiz_screen.dart';
 
 // â”€â”€â”€ Nav item model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -46,9 +47,9 @@ const _navItems = [
     label: 'Cards',
   ),
   _NavItem(
-    icon: Icons.bar_chart_outlined,
-    activeIcon: Icons.bar_chart_rounded,
-    label: 'Stats',
+    icon: Icons.quiz_outlined,
+    activeIcon: Icons.quiz_rounded,
+    label: 'Quiz',
   ),
 ];
 
@@ -174,7 +175,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
         onScanTap: _openScanner,
       ),
       3 => const FlashcardsScreen(),
-      4 => AnalyticsScreen(onBack: () => _switchTab(0)),
+      4 => const QuizLobbyScreen(),
       _ => const SizedBox.shrink(),
     };
   }
@@ -505,4 +506,5 @@ class _CentreNavBtnState extends State<_CentreNavBtn>
     );
   }
 }
+
 

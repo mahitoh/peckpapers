@@ -12,12 +12,14 @@ class AppSettings extends ChangeNotifier {
   static const _keyDailyTime = 'dailyNotifyTime';
   static const _keyStudyReminder = 'studyReminderEnabled';
   static const _keyStudyMinutes = 'studyMinutes';
+  static const _keyAiFastMode = 'aiFastMode';
 
   ThemeMode _themeMode = ThemeMode.light;
   bool _notifyEnabled = true;
   TimeOfDay _dailyNotifyTime = const TimeOfDay(hour: 19, minute: 0);
   bool _studyReminderEnabled = true;
   int _studyMinutes = 45;
+  bool _aiFastMode = true;
 
   ThemeMode get themeMode => _themeMode;
   bool get isDark => _themeMode == ThemeMode.dark;
@@ -25,6 +27,7 @@ class AppSettings extends ChangeNotifier {
   TimeOfDay get dailyNotifyTime => _dailyNotifyTime;
   bool get studyReminderEnabled => _studyReminderEnabled;
   int get studyMinutes => _studyMinutes;
+  bool get aiFastMode => _aiFastMode;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -38,6 +41,7 @@ class AppSettings extends ChangeNotifier {
     _notifyEnabled = prefs.getBool(_keyNotifyEnabled) ?? true;
     _studyReminderEnabled = prefs.getBool(_keyStudyReminder) ?? true;
     _studyMinutes = prefs.getInt(_keyStudyMinutes) ?? 45;
+    _aiFastMode = prefs.getBool(_keyAiFastMode) ?? true;
 
     final timeValue = prefs.getInt(_keyDailyTime);
     if (timeValue != null) {
@@ -85,6 +89,13 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_keyStudyMinutes, value);
+  }
+
+  Future<void> setAiFastMode(bool value) async {
+    _aiFastMode = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyAiFastMode, value);
   }
 }
 
