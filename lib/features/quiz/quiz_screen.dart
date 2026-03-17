@@ -1,4 +1,4 @@
-﻿// lib/features/quiz/quiz_screen.dart
+// lib/features/quiz/quiz_screen.dart
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -10,7 +10,7 @@ import '../../core/widgets/peck_button.dart';
 import '../../core/widgets/glow_container.dart';
 import '../pdf/pdf_preview_screen.dart';
 
-// â”€â”€â”€ Data models â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Data models 
 
 class QuizQuestion {
   const QuizQuestion({
@@ -32,7 +32,7 @@ const _mockQuestions = [
     question: 'What does the Chain Rule state?',
     options: [
       'The derivative of a sum equals the sum of derivatives',
-      'If y = f(g(x)), then dy/dx = f\'(g(x)) Â· g\'(x)',
+      'If y = f(g(x)), then dy/dx = f\'(g(x))  g\'(x)',
       'The integral of a product of two functions',
       'The limit of a composite function as x approaches zero',
     ],
@@ -54,7 +54,7 @@ const _mockQuestions = [
     correctIndex: 2,
     explanation:
         'The First Law of Thermodynamics is the law of '
-        'conservation of energy. Î”U = Q âˆ’ W.',
+        'conservation of energy. U = Q  W.',
     subject: 'Physics',
   ),
   QuizQuestion(
@@ -68,8 +68,8 @@ const _mockQuestions = [
     correctIndex: 2,
     explanation:
         'In SN2, the nucleophile attacks the electrophilic '
-        'carbon from the back (180Â° from the leaving group), '
-        'inverting the stereochemistry â€” called Walden inversion.',
+        'carbon from the back (180 from the leaving group), '
+        'inverting the stereochemistry  called Walden inversion.',
     subject: 'Chemistry',
   ),
   QuizQuestion(
@@ -90,25 +90,25 @@ const _mockQuestions = [
   QuizQuestion(
     question: 'Integration by parts follows which formula?',
     options: [
-      'âˆ«u dv = uv + âˆ«v du',
-      'âˆ«u dv = uv âˆ’ âˆ«v du',
-      'âˆ«u dv = u/v âˆ’ âˆ«v du',
-      'âˆ«u dv = (uv)Â² âˆ’ âˆ«v du',
+      'u dv = uv + v du',
+      'u dv = uv  v du',
+      'u dv = u/v  v du',
+      'u dv = (uv)  v du',
     ],
     correctIndex: 1,
     explanation:
-        'âˆ«u dv = uv âˆ’ âˆ«v du. '
+        'u dv = uv  v du. '
         'This is derived from the product rule. '
         'Use LIATE to choose u.',
     subject: 'Mathematics',
   ),
 ];
 
-// â”€â”€â”€ Quiz states â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Quiz states 
 
 enum _QuizState { active, results }
 
-// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Screen 
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({
@@ -288,7 +288,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  // â”€â”€ Compute per-answer correctness â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Compute per-answer correctness 
 
   _OptionState _optionState(int index) {
     if (!_answered) return _OptionState.idle;
@@ -321,7 +321,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // â”€â”€ Top bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            //  Top bar 
             _QuizTopBar(
               current: _currentIndex + 1,
               total: widget.questions.length,
@@ -333,7 +333,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
             const SizedBox(height: 16),
 
-            // â”€â”€ Progress segments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            //  Progress segments 
             _QuizProgressBar(
               answers: _answers,
               questions: widget.questions,
@@ -343,7 +343,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
             const SizedBox(height: 28),
 
-            // â”€â”€ Question â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            //  Question 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: FadeTransition(
@@ -360,7 +360,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
             const SizedBox(height: 28),
 
-            // â”€â”€ Options â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            //  Options 
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -379,7 +379,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
               ),
             ),
 
-            // â”€â”€ Explanation (after answer) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            //  Explanation (after answer) 
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 350),
               child: _answered && _current.explanation != null
@@ -399,11 +399,11 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
   }
 }
 
-// â”€â”€â”€ Option state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Option state 
 
 enum _OptionState { idle, correct, wrong, dimmed }
 
-// â”€â”€â”€ Quiz Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Quiz Top Bar 
 
 class _QuizTopBar extends StatelessWidget {
   const _QuizTopBar({
@@ -500,7 +500,7 @@ class _QuizTopBar extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Quiz Progress Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Quiz Progress Bar 
 
 class _QuizProgressBar extends StatelessWidget {
   const _QuizProgressBar({
@@ -561,7 +561,7 @@ class _QuizProgressBar extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Question Block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Question Block 
 
 class _QuestionBlock extends StatelessWidget {
   const _QuestionBlock({required this.question, required this.index});
@@ -605,7 +605,7 @@ class _QuestionBlock extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Option Tile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Option Tile 
 
 class _OptionTile extends StatefulWidget {
   const _OptionTile({
@@ -797,7 +797,7 @@ class _OptionTileState extends State<_OptionTile>
   }
 }
 
-// â”€â”€â”€ Explanation Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Explanation Bar 
 
 class _ExplanationBar extends StatelessWidget {
   const _ExplanationBar({
@@ -854,7 +854,7 @@ class _ExplanationBar extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Results Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Results Screen 
 
 class _ResultsScreen extends StatefulWidget {
   const _ResultsScreen({
@@ -928,7 +928,7 @@ class _ResultsScreenState extends State<_ResultsScreen>
       MaterialPageRoute(
         builder: (_) => PdfPreviewScreen(
           title: 'Quiz Results',
-          subtitle: 'Score $_correct/${widget.questions.length} â€¢ Grade $_grade',
+          subtitle: 'Score $_correct/${widget.questions.length}  Grade $_grade',
           body: summary.toString(),
           bullets: [
             'Correct: $_correct',
@@ -969,7 +969,7 @@ class _ResultsScreenState extends State<_ResultsScreen>
           child: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // â”€â”€ Score hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+              //  Score hero 
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
@@ -986,7 +986,7 @@ class _ResultsScreenState extends State<_ResultsScreen>
 
               const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-              // â”€â”€ Stat chips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+              //  Stat chips 
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -1025,7 +1025,7 @@ class _ResultsScreenState extends State<_ResultsScreen>
 
               const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-              // â”€â”€ Review header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+              //  Review header 
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -1035,7 +1035,7 @@ class _ResultsScreenState extends State<_ResultsScreen>
 
               const SliverToBoxAdapter(child: SizedBox(height: 14)),
 
-              // â”€â”€ Answer review list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+              //  Answer review list 
               SliverList(
                 delegate: SliverChildBuilderDelegate((ctx, i) {
                   final q = widget.questions[i];
@@ -1057,7 +1057,7 @@ class _ResultsScreenState extends State<_ResultsScreen>
 
               const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-              // â”€â”€ Action buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+              //  Action buttons 
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
@@ -1095,7 +1095,7 @@ class _ResultsScreenState extends State<_ResultsScreen>
   }
 }
 
-// â”€â”€â”€ Score Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Score Hero 
 
 class _ScoreHero extends StatelessWidget {
   const _ScoreHero({
@@ -1179,7 +1179,7 @@ class _ScoreHero extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Result Chip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Result Chip 
 
 class _ResultChip extends StatelessWidget {
   const _ResultChip({
@@ -1214,7 +1214,7 @@ class _ResultChip extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Review Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Review Card 
 
 class _ReviewCard extends StatefulWidget {
   const _ReviewCard({
@@ -1416,4 +1416,6 @@ class _ReviewRow extends StatelessWidget {
     );
   }
 }
+
+
 

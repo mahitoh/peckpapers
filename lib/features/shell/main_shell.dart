@@ -1,18 +1,15 @@
-﻿// lib/features/shell/main_shell.dart
+// lib/features/shell/main_shell.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:peckpapers/features/liabrary/library_screen.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
-import '../../core/widgets/glow_container.dart';
 import '../home/home_screen.dart';
 import '../scanner/scanner_screen.dart';
 import '../flashcards/flashcards_screen.dart';
 import '../analytics/analytics_screen.dart';
 
-// â”€â”€â”€ Nav item model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
+// Nav item model
 class _NavItem {
   const _NavItem({
     required this.icon,
@@ -24,15 +21,16 @@ class _NavItem {
   final String label;
 }
 
+
 const _navItems = [
   _NavItem(
     icon: Icons.home_outlined,
-    activeIcon: Icons.home_rounded,
+    activeIcon: Icons.home_filled,
     label: 'Home',
   ),
   _NavItem(
-    icon: Icons.menu_book_outlined,
-    activeIcon: Icons.menu_book_rounded,
+    icon: Icons.search_rounded,
+    activeIcon: Icons.manage_search_rounded,
     label: 'Library',
   ),
   _NavItem(
@@ -52,7 +50,7 @@ const _navItems = [
   ),
 ];
 
-// â”€â”€â”€ Shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Shell 
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -76,7 +74,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    // â”€â”€ Tab indicator animations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Tab indicator animations 
     _indicatorCtrls = List.generate(
       _navItems.length,
       (_) => AnimationController(
@@ -96,7 +94,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
     // Activate first tab
     _indicatorCtrls[0].forward();
 
-    // â”€â”€ Page transition â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Page transition 
     _pageCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 320),
@@ -114,32 +112,24 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  // â”€â”€ Switch tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Switch tab 
 
   void _switchTab(int index) {
     if (index == 2) {
-      // Centre button â†’ open scanner as modal
       _openScanner();
       return;
     }
     if (index == _currentTab) return;
 
     HapticFeedback.selectionClick();
-
-    // Deactivate old indicator
     _indicatorCtrls[_currentTab].reverse();
-
     setState(() => _currentTab = index);
-
-    // Activate new indicator
     _indicatorCtrls[index].forward();
-
-    // Page transition
     _pageCtrl.reset();
     _pageCtrl.forward();
   }
 
-  // â”€â”€ Open scanner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Open scanner 
 
   void _openScanner() {
     HapticFeedback.mediumImpact();
@@ -159,18 +149,18 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
     );
   }
 
-  // â”€â”€ Build screen for index â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Build creen for index 
 
   Widget _buildScreen(int index) {
     return switch (index) {
       0 => HomeScreen(
         onScanTap: _openScanner,
-        onDocTap: (_) => _switchTab(3),
+        onDocTap: (_) => _switchTab(1),
         onSeeAllTap: () => _switchTab(1),
         onStatTap: () => _switchTab(4),
       ),
       1 => LibraryScreen(
-        onDocumentTap: (_) => _switchTab(3),
+        onDocumentTap: (_) => _switchTab(1),
         onScanTap: _openScanner,
       ),
       3 => const FlashcardsScreen(),
@@ -185,11 +175,13 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness:
-            AppColors.isDark ? Brightness.light : Brightness.dark,
+        statusBarIconBrightness: AppColors.isDark
+            ? Brightness.light
+            : Brightness.dark,
         systemNavigationBarColor: AppColors.bgSurface,
-        systemNavigationBarIconBrightness:
-            AppColors.isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarIconBrightness: AppColors.isDark
+            ? Brightness.light
+            : Brightness.dark,
       ),
     );
 
@@ -198,7 +190,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
       extendBody: true, // content goes under nav bar
       body: Stack(
         children: [
-          // â”€â”€ Screens kept alive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // Screens kept alive 
           // Use IndexedStack so all screens stay mounted
           // (scroll positions, state preserved when switching tabs)
           IndexedStack(
@@ -206,13 +198,13 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
             children: [
               _KeepAliveScreen(child: _buildScreen(0)),
               _KeepAliveScreen(child: _buildScreen(1)),
-              const SizedBox.shrink(), // scanner is a modal
+              const SizedBox.shrink(), // scanner index
               _KeepAliveScreen(child: _buildScreen(3)),
               _KeepAliveScreen(child: _buildScreen(4)),
             ],
           ),
 
-          // â”€â”€ Page fade/slide overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // Page fade/slide overlay
           Positioned.fill(
             child: IgnorePointer(
               child: FadeTransition(
@@ -233,7 +225,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   }
 }
 
-// â”€â”€â”€ Keep Alive Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Keep Alive Screen 
 // Wraps each screen so IndexedStack never rebuilds them
 
 class _KeepAliveScreen extends StatefulWidget {
@@ -256,7 +248,7 @@ class _KeepAliveScreenState extends State<_KeepAliveScreen>
   }
 }
 
-// â”€â”€â”€ Custom Nav Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Custom Nav Ba
 
 class _PeckNavBar extends StatelessWidget {
   const _PeckNavBar({
@@ -275,45 +267,24 @@ class _PeckNavBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.bgSurface,
-        border: Border(
-          top: BorderSide(color: AppColors.border, width: 1),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacityCompat(0.4),
-            blurRadius: 24,
-            offset: const Offset(0, -8),
-          ),
-        ],
+        border: Border(top: BorderSide(color: AppColors.border, width: 0.5)),
       ),
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 64,
+          height: 56, // Slightly shorter, like standard bottom navs
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(items.length, (i) {
               final item = items[i];
               final isActive = i == currentIndex;
-              final isCentre = i == 2;
-
-              // Centre scan button gets special treatment
-              if (isCentre) {
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () => onTap(2),
-                    child: Center(
-                      child: _CentreNavBtn(scales: scales, index: i),
-                    ),
-                  ),
-                );
-              }
-
               return Expanded(
                 child: _NavBarItem(
                   item: item,
                   isActive: isActive,
                   scale: scales[i],
                   onTap: () => onTap(i),
+                  isSpecial: false, // all icons styled identically
                 ),
               );
             }),
@@ -324,7 +295,7 @@ class _PeckNavBar extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Nav Bar Item â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//Nav Bar Item
 
 class _NavBarItem extends StatelessWidget {
   const _NavBarItem({
@@ -332,11 +303,13 @@ class _NavBarItem extends StatelessWidget {
     required this.isActive,
     required this.scale,
     required this.onTap,
+    this.isSpecial = false,
   });
   final _NavItem item;
   final bool isActive;
   final Animation<double> scale;
   final VoidCallback onTap;
+  final bool isSpecial;
 
   @override
   Widget build(BuildContext context) {
@@ -345,118 +318,20 @@ class _NavBarItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: ScaleTransition(
         scale: scale,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Icon with animated indicator pill
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                // Active pill background
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeOut,
-                  width: isActive ? 44 : 0,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: isActive ? AppColors.amberDim : Colors.transparent,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                ),
-
-                // Icon
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    isActive ? item.activeIcon : item.icon,
-                    key: ValueKey(isActive),
-                    size: 22,
-                    color: isActive ? AppColors.amber : AppColors.textTertiary,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 4),
-
-            // Label
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              style: AppTextStyles.labelMD.copyWith(
-                color: isActive ? AppColors.amber : AppColors.textTertiary,
-                fontSize: 10,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-              ),
-              child: Text(item.label),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// â”€â”€â”€ Centre Scan Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-class _CentreNavBtn extends StatefulWidget {
-  const _CentreNavBtn({required this.scales, required this.index});
-  final List<Animation<double>> scales;
-  final int index;
-
-  @override
-  State<_CentreNavBtn> createState() => _CentreNavBtnState();
-}
-
-class _CentreNavBtnState extends State<_CentreNavBtn>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _pulseCtrl;
-  late Animation<double> _pulseAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    )..repeat(reverse: true);
-    _pulseAnim = Tween<double>(
-      begin: 0.92,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _pulseCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _pulseAnim,
-      builder: (_, child) =>
-          Transform.scale(scale: _pulseAnim.value, child: child),
-      child: GlowContainer(
-        glowColor: AppColors.amber,
-        glowRadius: 20,
-        glowOpacity: 0.45,
         child: Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            gradient: AppColors.scannerGradient,
-            shape: BoxShape.circle,
-            boxShadow: AppColors.amberShadow,
-          ),
-          child: const Icon(
-            Icons.document_scanner_rounded,
-            color: Colors.white,
-            size: 24,
+          color: Colors.transparent,
+          child: Center(
+            child: Icon(
+              isActive ? item.activeIcon : item.icon,
+              size: 28, // Twitter uses larger icons with no text
+              color: isActive ? AppColors.textPrimary : AppColors.textTertiary,
+            ),
           ),
         ),
       ),
     );
   }
 }
+
+
 

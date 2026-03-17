@@ -1,12 +1,15 @@
-﻿// lib/features/home/home_screen.dart
+// lib/features/home/home_screen.dart
 
 import 'package:flutter/material.dart';
 import '../../core/settings/app_settings_scope.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/widgets/glass_card.dart';
+import '../../core/widgets/responsive_layout.dart';
 import '../settings/settings_screen.dart';
+import '../shell/placeholder_screen.dart';
 
-// â”€â”€â”€ Models â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- Models ---
 
 class _Task {
   const _Task({
@@ -27,7 +30,7 @@ class _Task {
 
 final _mockTasks = [
   _Task(
-    title: 'Calculus â€” Integration',
+    title: 'Calculus  Integration',
     subject: 'Mathematics',
     time: '8:30 AM',
     priority: 3,
@@ -52,7 +55,7 @@ final _mockTasks = [
   ),
 ];
 
-// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- Screen ---
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -73,262 +76,224 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Reserved for future schedule tabs
-
   @override
   Widget build(BuildContext context) {
+    final rs = ResponsiveScale(context);
+
     return Scaffold(
       backgroundColor: AppColors.bgBase,
       drawer: _buildDrawer(),
-      body: SafeArea(
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            SliverToBoxAdapter(
-              child: _buildHeader(),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
-
-            // â”€â”€ Promo Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            SliverToBoxAdapter(
-              child: _buildPromoBanner(),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 28)),
-
-            // â”€â”€ Stats Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            SliverToBoxAdapter(
-              child: _buildStatsRow(),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 28)),
-
-            // â”€â”€ Section Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            SliverToBoxAdapter(
-              child: _buildSectionHeader('Your Schedule', 'See all'),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
-            // â”€â”€ Task List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (ctx, i) => _buildTaskCard(_mockTasks[i], i),
-                childCount: _mockTasks.length,
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          // --- Twitter-Style Top Bar ---
+          SliverAppBar(
+            floating: true,
+            elevation: 0,
+            backgroundColor: AppColors.bgBase.withOpacity(0.9),
+            centerTitle: true,
+            leadingWidth: 70,
+            leading: Builder(
+              builder: (context) => IconButton(
+                onPressed: () => Scaffold.of(context).openDrawer(),
+                icon: Icon(
+                  Icons.menu_rounded,
+                  color: AppColors.textPrimary,
+                  size: 28,
+                ),
               ),
             ),
+            title: Text(
+              'PECKPAPERS',
+              style: AppTextStyles.headingMD.copyWith(
+                letterSpacing: 2,
+                fontWeight: FontWeight.w900,
+                color: AppColors.primary,
+              ),
+            ),
+            actions: [
+              IconButton(
+                onPressed: () {},
+                icon: Icon(
+                  Icons.auto_awesome_outlined,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(48),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: AppColors.border, width: 0.5),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    _buildTopTab('For You', true),
+                    _buildTopTab('Schedule', false),
+                  ],
+                ),
+              ),
+            ),
+          ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+          // --- Pinned Promo ---
+          SliverToBoxAdapter(child: _buildPromoBanner(rs)),
+
+          // --- Feed ---
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (ctx, i) => _buildTweetCard(_mockTasks[i]),
+              childCount: _mockTasks.length,
+            ),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopTab(String label, bool active) {
+    return Expanded(
+      child: Column(
+        children: [
+          const SizedBox(height: 14),
+          Text(
+            label,
+            style: AppTextStyles.bodyMDMedium.copyWith(
+              color: active ? AppColors.textPrimary : AppColors.textTertiary,
+              fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (active)
+            Container(
+              height: 4,
+              width: 50,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            )
+          else
+            const SizedBox(height: 4),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPromoBanner(ResponsiveScale rs) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+      ),
+      child: GlassCard(
+        padding: const EdgeInsets.all(20),
+        borderRadius: 16,
+        opacity: 0.1,
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ace Your Exams',
+                    style: AppTextStyles.headingMD.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Generate custom papers that target your weaknesses!',
+                    style: AppTextStyles.bodySM.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Icon(Icons.auto_awesome_rounded, color: AppColors.primary),
           ],
         ),
       ),
     );
   }
 
-  // â”€â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-  Widget _buildHeader() {
+  Widget _buildStatsRow(ResponsiveScale rs) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+      padding: EdgeInsets.symmetric(horizontal: rs.hPadding),
       child: Row(
         children: [
-          // Menu button to open drawer
-          Builder(
-            builder: (context) => GestureDetector(
-              onTap: () => Scaffold.of(context).openDrawer(),
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.bgSurface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border, width: 1),
-                ),
-                child: Icon(
-                  Icons.menu,
-                  color: AppColors.textPrimary,
-                  size: 22,
-                ),
-              ),
-            ),
+          _buildStatCard(
+            'Cards',
+            '12',
+            Icons.style_rounded,
+            AppColors.primary,
+            rs,
           ),
-
-          const Spacer(),
-
-          // Notification bell
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.bgSurface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border, width: 1),
-            ),
-            child: Icon(
-              Icons.notifications_outlined,
-              color: AppColors.textSecondary,
-              size: 22,
-            ),
+          const SizedBox(width: 12),
+          _buildStatCard(
+            'Streak',
+            '7',
+            Icons.local_fire_department_rounded,
+            AppColors.accentOrange,
+            rs,
+          ),
+          const SizedBox(width: 12),
+          _buildStatCard(
+            'Expert',
+            '72%',
+            Icons.auto_awesome_rounded,
+            AppColors.accentGreen,
+            rs,
           ),
         ],
       ),
     );
   }
 
-  // â”€â”€â”€ Toggle Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-
-  // â”€â”€â”€ Promo Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-  Widget _buildPromoBanner() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        height: 140,
-        decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: AppColors.primaryShadow,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacityCompat(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        'AI FEATURED',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Flexible(
-                      child: Text(
-                        'Ace Your Exams',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Flexible(
-                      child: Text(
-                        'Generate custom papers that target your weaknesses!',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          height: 1.4,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Try it now button
-              Flexible(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          'Try it now',
-                          style: AppTextStyles.buttonSM.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.arrow_forward,
-                        color: AppColors.primary,
-                        size: 16,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // â”€â”€â”€ Stats Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-  Widget _buildStatsRow() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Row(
-        children: [
-          _buildStatCard('Due Today', '12', Icons.style_outlined, AppColors.primary),
-          const SizedBox(width: 12),
-          _buildStatCard('Streak', '7', Icons.local_fire_department_outlined, AppColors.accentOrange),
-          const SizedBox(width: 12),
-          _buildStatCard('Total Scans', '48', Icons.document_scanner_outlined, AppColors.secondary),
-          const SizedBox(width: 12),
-          _buildStatCard('Mastery %', '72%', Icons.emoji_events_outlined, AppColors.accentGreen),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+    ResponsiveScale rs,
+  ) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border, width: 1),
-          boxShadow: AppColors.cardShadow,
-        ),
+      child: GlassCard(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        borderRadius: 20,
+        opacity: AppColors.isDark ? 0.05 : 0.03,
         child: Column(
           children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(height: 12),
             Text(
               value,
-              style: AppTextStyles.headingSM.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyles.headingMD.copyWith(
+                fontWeight: FontWeight.w800,
+                fontSize: rs.font(18, min: 16, max: 22),
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             Text(
               label,
               style: AppTextStyles.labelSM.copyWith(
                 color: AppColors.textSecondary,
+                letterSpacing: 0.5,
               ),
             ),
           ],
@@ -337,28 +302,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // â”€â”€â”€ Section Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-  Widget _buildSectionHeader(String title, String action) {
+  Widget _buildSectionHeader(String title, String action, ResponsiveScale rs) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: rs.hPadding),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: AppTextStyles.headingMD.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const Spacer(),
+          Text(title, style: AppTextStyles.headingLG),
           TextButton(
             onPressed: widget.onSeeAllTap,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
             child: Text(
               action,
               style: AppTextStyles.buttonSM.copyWith(
                 color: AppColors.primary,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -367,222 +330,82 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // â”€â”€â”€ Task Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-  Widget _buildTaskCard(_Task task, int index) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border, width: 1),
-          boxShadow: AppColors.cardShadow,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // Priority indicator
-              Container(
-                width: 4,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: task.color,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 14),
-
-              // Content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildTweetCard(_Task task) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Avatar/Icon
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: task.color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              task.completed
+                  ? Icons.check_circle_rounded
+                  : Icons.pending_actions_rounded,
+              color: task.color,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: task.color.withOpacityCompat(0.3),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          task.subject,
-                          style: AppTextStyles.labelSM.copyWith(
-                            color: task.color,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
                     Text(
-                      task.title,
-                      style: AppTextStyles.bodyLG.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                        decoration: task.completed
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
+                      task.subject,
+                      style: AppTextStyles.bodyMDMedium.copyWith(
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 14,
-                          color: AppColors.textTertiary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          task.time,
-                          style: AppTextStyles.labelSM.copyWith(
-                            color: AppColors.textTertiary,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        ...List.generate(
-                          task.priority,
-                          (i) => Icon(
-                            Icons.warning_amber_rounded,
-                            size: 12,
-                            color: AppColors.accentOrange,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(width: 4),
+                    Icon(Icons.verified, color: AppColors.primary, size: 14),
+                    const SizedBox(width: 4),
+                    Text(
+                      ' ${task.time}',
+                      style: AppTextStyles.bodySM.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
                     ),
                   ],
                 ),
-              ),
-
-              // Checkbox
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: task.completed ? AppColors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: task.completed ? AppColors.primary : AppColors.border,
-                    width: 2,
+                const SizedBox(height: 4),
+                Text(
+                  task.title,
+                  style: AppTextStyles.bodyLG.copyWith(
+                    color: AppColors.textPrimary,
+                    decoration: task.completed
+                        ? TextDecoration.lineThrough
+                        : null,
                   ),
                 ),
-                child: task.completed
-                    ? const Icon(Icons.check, color: Colors.white, size: 18)
-                    : null,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // â”€â”€â”€ Drawer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-  Widget _buildDrawer() {
-    final settings = AppSettingsScope.of(context);
-    return Drawer(
-      backgroundColor: AppColors.bgBase,
-      child: Column(
-        children: [
-          UserAccountsDrawerHeader(
-            decoration: BoxDecoration(
-              color: AppColors.bgSurface,
-            ),
-            currentAccountPicture: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.border, width: 2),
-              ),
-              child: CircleAvatar(
-                backgroundImage: const NetworkImage('https://i.pravatar.cc/150?img=11'),
-                backgroundColor: AppColors.bgCard,
-              ),
-            ),
-            accountName: Text(
-              'Mark Parker',
-              style: AppTextStyles.headingSM.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            accountEmail: Text(
-              'mark@peckpapers.com',
-              style: AppTextStyles.bodySM.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
-          
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                ListTile(
-                  leading: Icon(Icons.person, color: AppColors.textPrimary),
-                  title: Text(
-                    'Profile',
-                    style: AppTextStyles.bodyMD.copyWith(color: AppColors.textPrimary),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.credit_card, color: AppColors.textPrimary),
-                  title: Text(
-                    'Subscription',
-                    style: AppTextStyles.bodyMD.copyWith(color: AppColors.textPrimary),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                SwitchListTile(
-                  secondary: Icon(Icons.dark_mode, color: AppColors.textPrimary),
-                  title: Text(
-                    'Dark Mode',
-                    style: AppTextStyles.bodyMD.copyWith(color: AppColors.textPrimary),
-                  ),
-                  value: settings.isDark,
-                  onChanged: (value) {
-                    settings.setThemeMode(
-                      value ? ThemeMode.dark : ThemeMode.light,
-                    );
-                  },
-                  activeThumbColor: AppColors.primary,
-                ),
-                const Divider(),
-                ListTile(
-                  leading: Icon(Icons.settings, color: AppColors.textPrimary),
-                  title: Text(
-                    'Settings',
-                    style: AppTextStyles.bodyMD.copyWith(color: AppColors.textPrimary),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const SettingsScreen(),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.exit_to_app, color: AppColors.error),
-                  title: Text(
-                    'Logout',
-                    style: AppTextStyles.bodyMD.copyWith(color: AppColors.error),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
+                const SizedBox(height: 12),
+                // Interaction bar
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildTweetAction(Icons.chat_bubble_outline_rounded, '2'),
+                    _buildTweetAction(Icons.repeat_rounded, '1'),
+                    _buildTweetAction(
+                      task.completed
+                          ? Icons.favorite_rounded
+                          : Icons.favorite_border_rounded,
+                      task.completed ? '1' : '0',
+                      color: task.completed ? AppColors.error : null,
+                    ),
+                    _buildTweetAction(Icons.share_outlined, ''),
+                  ],
                 ),
               ],
             ),
@@ -591,5 +414,200 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  Widget _buildTweetAction(IconData icon, String label, {Color? color}) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: color ?? AppColors.textTertiary),
+        if (label.isNotEmpty) ...[
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: AppTextStyles.labelSM.copyWith(
+              color: AppColors.textTertiary,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDrawer() {
+    final settings = AppSettingsScope.of(context);
+    return Drawer(
+      backgroundColor: AppColors.bgBase,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // --- Custom Twitter-style Header ---
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.border, width: 2),
+                      image: const DecorationImage(
+                        image: NetworkImage('https://i.pravatar.cc/150?img=11'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Mark Parker',
+                    style: AppTextStyles.headingMD.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  Text(
+                    '@mark_peck',
+                    style: AppTextStyles.bodySM.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      _buildDrawerStat('24', 'Documents'),
+                      const SizedBox(width: 16),
+                      _buildDrawerStat('1.2k', 'Flashcards'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, thickness: 0.5),
+
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                children: [
+                  _buildDrawerTile(
+                    Icons.person_outline_rounded,
+                    'Profile',
+                    () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen(title: 'Profile')));
+                    },
+                  ),
+                  _buildDrawerTile(
+                    Icons.list_alt_rounded,
+                    'Study Lists',
+                    () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen(title: 'Study Lists')));
+                    },
+                  ),
+                  _buildDrawerTile(
+                    Icons.bookmark_border_rounded,
+                    'Bookmarks',
+                    () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen(title: 'Bookmarks')));
+                    },
+                  ),
+                  _buildDrawerTile(
+                    Icons.credit_card_rounded,
+                    'Subscription',
+                    () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen(title: 'Subscription')));
+                    },
+                  ),
+                  const Divider(
+                    height: 32,
+                    thickness: 0.5,
+                    indent: 24,
+                    endIndent: 24,
+                  ),
+                  _buildDrawerTile(
+                    Icons.settings_outlined,
+                    'Settings & Privacy',
+                    () {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildDrawerTile(
+                    Icons.help_outline_rounded,
+                    'Help Center',
+                    () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen(title: 'Help Center')));
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            // Theme Toggle Bottom
+            const Divider(height: 1, thickness: 0.5),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.lightbulb_outline_rounded,
+                    color: AppColors.textPrimary,
+                  ),
+                  const Spacer(),
+                  Switch(
+                    value: settings.isDark,
+                    onChanged: (v) => settings.setThemeMode(
+                      v ? ThemeMode.dark : ThemeMode.light,
+                    ),
+                    activeThumbColor: AppColors.primary,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerStat(String count, String label) {
+    return Row(
+      children: [
+        Text(
+          count,
+          style: AppTextStyles.bodyMDMedium.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: AppTextStyles.bodySM.copyWith(color: AppColors.textTertiary),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDrawerTile(
+    IconData icon,
+    String title,
+    VoidCallback onTap, {
+    bool isError = false,
+  }) {
+    final color = isError ? AppColors.error : AppColors.textPrimary;
+    return ListTile(
+      leading: Icon(icon, color: color),
+      title: Text(title, style: AppTextStyles.bodyMD.copyWith(color: color)),
+      onTap: onTap,
+    );
+  }
 }
+
 
