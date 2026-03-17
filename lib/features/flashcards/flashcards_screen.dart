@@ -1,4 +1,4 @@
-﻿// lib/features/flashcards/flashcards_screen.dart
+// lib/features/flashcards/flashcards_screen.dart
 
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -9,7 +9,7 @@ import '../../core/widgets/peck_button.dart';
 import '../../core/widgets/peck_badge.dart';
 import '../../core/widgets/glow_container.dart';
 
-// â”€â”€â”€ Data model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Data model 
 
 class FlashcardData {
   const FlashcardData({
@@ -24,16 +24,16 @@ class FlashcardData {
   final String answer;
   final String subject;
   final String? hint;
-  final int mastery; // 0â€“5
+  final int mastery; // 05
 }
 
-// â”€â”€â”€ Mock deck â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Mock deck 
 
 const _mockDeck = [
   FlashcardData(
     question: 'What is integration by parts?',
     answer:
-        'âˆ«u dv = uv âˆ’ âˆ«v du\n\nUsed when integrating a product of two functions. Choose u using LIATE: Logarithm, Inverse trig, Algebraic, Trig, Exponential.',
+        'u dv = uv  v du\n\nUsed when integrating a product of two functions. Choose u using LIATE: Logarithm, Inverse trig, Algebraic, Trig, Exponential.',
     subject: 'Calculus',
     hint: 'Think of it as the product rule in reverse.',
     mastery: 3,
@@ -41,14 +41,14 @@ const _mockDeck = [
   FlashcardData(
     question: 'Define the Fundamental Theorem of Calculus.',
     answer:
-        'If F is an antiderivative of f on [a,b], then:\nâˆ«â‚áµ‡ f(x)dx = F(b) âˆ’ F(a)\n\nLinks differentiation and integration.',
+        'If F is an antiderivative of f on [a,b], then:\n f(x)dx = F(b)  F(a)\n\nLinks differentiation and integration.',
     subject: 'Calculus',
     mastery: 1,
   ),
   FlashcardData(
-    question: 'What is L\'HÃ´pital\'s Rule?',
+    question: 'What is L\'Hpital\'s Rule?',
     answer:
-        'If lim f(x)/g(x) gives 0/0 or âˆž/âˆž, then:\nlim f(x)/g(x) = lim f\'(x)/g\'(x)\n\nApply repeatedly until limit resolves.',
+        'If lim f(x)/g(x) gives 0/0 or /, then:\nlim f(x)/g(x) = lim f\'(x)/g\'(x)\n\nApply repeatedly until limit resolves.',
     subject: 'Calculus',
     hint: 'Only applies to indeterminate forms.',
     mastery: 5,
@@ -56,20 +56,20 @@ const _mockDeck = [
   FlashcardData(
     question: 'What does the chain rule state?',
     answer:
-        'd/dx[f(g(x))] = f\'(g(x)) Â· g\'(x)\n\nThe derivative of a composite function â€” outside times derivative of inside.',
+        'd/dx[f(g(x))] = f\'(g(x))  g\'(x)\n\nThe derivative of a composite function  outside times derivative of inside.',
     subject: 'Calculus',
     mastery: 2,
   ),
   FlashcardData(
-    question: 'Define a limit formally (Îµ-Î´ definition).',
+    question: 'Define a limit formally (- definition).',
     answer:
-        'lim xâ†’a f(x) = L means:\nFor every Îµ > 0 there exists Î´ > 0 such that\n0 < |xâˆ’a| < Î´ âŸ¹ |f(x)âˆ’L| < Îµ',
+        'lim xa f(x) = L means:\nFor every  > 0 there exists  > 0 such that\n0 < |xa| <   |f(x)L| < ',
     subject: 'Calculus',
     mastery: 0,
   ),
 ];
 
-// â”€â”€â”€ Rating config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Rating config 
 
 class _Rating {
   const _Rating({
@@ -85,12 +85,12 @@ class _Rating {
 }
 
 final _ratings = [
-  _Rating(label: 'Hard', emoji: 'ðŸ˜“', color: AppColors.error, quality: 1),
-  _Rating(label: 'Good', emoji: 'ðŸ™‚', color: AppColors.warning, quality: 3),
-  _Rating(label: 'Easy', emoji: 'ðŸš€', color: AppColors.success, quality: 5),
+  _Rating(label: 'Hard', emoji: '', color: AppColors.error, quality: 1),
+  _Rating(label: 'Good', emoji: '', color: AppColors.warning, quality: 3),
+  _Rating(label: 'Easy', emoji: '', color: AppColors.success, quality: 5),
 ];
 
-// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Screen 
 
 class FlashcardsScreen extends StatefulWidget {
   const FlashcardsScreen({
@@ -181,7 +181,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
     super.dispose();
   }
 
-  // â”€â”€ Flip card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Flip card 
 
   void _flip() {
     HapticFeedback.lightImpact();
@@ -195,7 +195,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
     setState(() => _flipped = !_flipped);
   }
 
-  // â”€â”€ Rate & advance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Rate & advance 
 
   void _rate(int quality) {
     HapticFeedback.mediumImpact();
@@ -217,7 +217,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
     _enterCtrl.forward();
   }
 
-  // â”€â”€ Swipe gesture â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Swipe gesture 
 
   void _onDragUpdate(DragUpdateDetails d) {
     setState(() => _dragDx = d.primaryDelta ?? 0);
@@ -228,7 +228,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
     setState(() => _dragDx = 0);
 
     if (velocity > 600 && _index > 0) {
-      // Swipe right â€” go back
+      // Swipe right  go back
       setState(() {
         _flipped = false;
         _index--;
@@ -240,7 +240,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
     }
   }
 
-  // â”€â”€ Finish sheet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Finish sheet 
 
   void _showFinishSheet() {
     showModalBottomSheet(
@@ -278,21 +278,21 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // â”€â”€ Top bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // --- Twitter-Style Top Bar ---
             _TopBar(
               title: widget.deckTitle,
               onBack: widget.onBack ?? () => Navigator.pop(context),
               onMore: () {},
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
 
-            // â”€â”€ Progress row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // --- Elegant Progress Bar ---
             _ProgressRow(current: _index + 1, total: widget.deck.length),
 
             const SizedBox(height: 32),
 
-            // â”€â”€ Card area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // --- Focused Card Area ---
             Expanded(
               child: GestureDetector(
                 onTap: _flip,
@@ -307,8 +307,8 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
                         card: _current,
                         flipAnim: _flipAnim,
                         dragDx: _dragDx,
-                        width: size.width - 48,
-                        height: (size.width - 48) * 1.22,
+                        width: size.width - 40,
+                        height: (size.width - 40) * 1.35,
                       ),
                     ),
                   ),
@@ -318,7 +318,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
 
             const SizedBox(height: 24),
 
-            // â”€â”€ Tap hint â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            //  Tap hint 
             AnimatedOpacity(
               opacity: _flipped ? 0.0 : 1.0,
               duration: const Duration(milliseconds: 250),
@@ -341,7 +341,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
 
             const SizedBox(height: 20),
 
-            // â”€â”€ Rating buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            //  Rating buttons 
             SlideTransition(
               position: _ratingSlide,
               child: FadeTransition(
@@ -358,7 +358,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
   }
 }
 
-// â”€â”€â”€ Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Top Bar 
 
 class _TopBar extends StatelessWidget {
   const _TopBar({
@@ -373,33 +373,30 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Row(
         children: [
-          _NavBtn(icon: Icons.arrow_back_ios_new_rounded, onTap: onBack),
+          _NavBtn(icon: Icons.close_rounded, onTap: onBack),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  'Flashcards',
-                  style: AppTextStyles.labelCaps.copyWith(
+                  'Reviewing Deck',
+                  style: AppTextStyles.labelSM.copyWith(
                     color: AppColors.textTertiary,
+                    letterSpacing: 1.2,
                   ),
                 ),
-                Text(title, style: AppTextStyles.headingLG),
+                Text(
+                  title,
+                  style: AppTextStyles.bodyMDMedium.copyWith(fontWeight: FontWeight.w800),
+                ),
               ],
             ),
           ),
-          PeckBadge(
-            label: 'SRS',
-            color: AppColors.violet,
-            style: BadgeStyle.subtle,
-            icon: const Icon(Icons.psychology_rounded),
-          ),
-          const SizedBox(width: 8),
-          _NavBtn(icon: Icons.more_horiz_rounded, onTap: onMore),
+          _NavBtn(icon: Icons.auto_awesome_rounded, onTap: onMore),
         ],
       ),
     );
@@ -427,7 +424,7 @@ class _NavBtn extends StatelessWidget {
   );
 }
 
-// â”€â”€â”€ Progress Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Progress Row 
 
 class _ProgressRow extends StatelessWidget {
   const _ProgressRow({required this.current, required this.total});
@@ -499,7 +496,7 @@ class _ProgressRow extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Flip Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Flip Card 
 
 class _FlipCard extends StatelessWidget {
   const _FlipCard({
@@ -553,7 +550,7 @@ class _FlipCard extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Card Face â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Card Face 
 
 class _CardFace extends StatelessWidget {
   const _CardFace({
@@ -599,41 +596,13 @@ class _CardFace extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // Decorative background circles
-            Positioned(
-              top: -30,
-              right: -30,
-              child: Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: (isFront ? AppColors.amber : AppColors.violet)
-                      .withOpacityCompat(0.04),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: -40,
-              left: -20,
-              child: Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: (isFront ? AppColors.amber : AppColors.violet)
-                      .withOpacityCompat(0.04),
-                ),
-              ),
-            ),
-
             // Main content
             Padding(
-              padding: const EdgeInsets.all(28),
+              padding: const EdgeInsets.all(32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Top row â€” label + subject chip
+                  // Top row  label + subject chip
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -665,11 +634,15 @@ class _CardFace extends StatelessWidget {
                   const Spacer(),
 
                   // Question / Answer text
-                  isFront ? _QuestionSide(card: card) : _AnswerSide(card: card),
+                  Expanded(
+                    child: isFront
+                        ? _QuestionSide(card: card)
+                        : _AnswerSide(card: card),
+                  ),
 
                   const Spacer(),
 
-                  // Bottom row â€” mastery dots
+                  // Bottom row  mastery dots
                   if (isFront) _MasteryRow(mastery: card.mastery),
                 ],
               ),
@@ -681,7 +654,7 @@ class _CardFace extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Question Side â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Question Side 
 
 class _QuestionSide extends StatelessWidget {
   const _QuestionSide({required this.card});
@@ -689,45 +662,58 @@ class _QuestionSide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(card.question, style: AppTextStyles.flashcardQuestion),
-        if (card.hint != null) ...[
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.amberDim,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.amber.withOpacityCompat(0.2)),
+    return Center(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              card.question,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.headingMD.copyWith(
+                height: 1.4,
+              ),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.lightbulb_outline_rounded,
-                  color: AppColors.amber,
-                  size: 16,
+            if (card.hint != null) ...[
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.amberDim,
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    card.hint!,
-                    style: AppTextStyles.bodySM.copyWith(
-                      color: AppColors.amber.withOpacityCompat(0.85),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.lightbulb_outline_rounded,
+                      color: AppColors.amber,
+                      size: 16,
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        card.hint!,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodySM.copyWith(
+                          color: AppColors.amber.withOpacityCompat(0.85),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ],
-      ],
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
 
-// â”€â”€â”€ Answer Side â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Answer Side 
 
 class _AnswerSide extends StatelessWidget {
   const _AnswerSide({required this.card});
@@ -735,42 +721,28 @@ class _AnswerSide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Divider line
-        Container(
-          width: 48,
-          height: 3,
-          margin: const EdgeInsets.only(bottom: 20),
-          decoration: BoxDecoration(
-            gradient: AppColors.violetGradient,
-            borderRadius: BorderRadius.circular(2),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.violet.withOpacityCompat(0.5),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-        ),
-        Text(
+    return Center(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Text(
           card.answer,
+          textAlign: TextAlign.center,
           style: AppTextStyles.bodyLG.copyWith(
             color: AppColors.textPrimary,
-            height: 1.7,
+            height: 1.6,
+            fontSize: 18,
           ),
         ),
-      ],
+      ),
     );
   }
 }
 
-// â”€â”€â”€ Mastery Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Mastery Row 
 
 class _MasteryRow extends StatelessWidget {
   const _MasteryRow({required this.mastery});
-  final int mastery; // 0â€“5
+  final int mastery; // 05
 
   @override
   Widget build(BuildContext context) {
@@ -805,7 +777,7 @@ class _MasteryRow extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Rating Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Rating Row 
 
 class _RatingRow extends StatelessWidget {
   const _RatingRow({required this.onRate});
@@ -908,7 +880,7 @@ class _RatingBtnState extends State<_RatingBtn>
   }
 }
 
-// â”€â”€â”€ Finish Sheet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Finish Sheet 
 
 class _FinishSheet extends StatelessWidget {
   const _FinishSheet({
@@ -969,7 +941,7 @@ class _FinishSheet extends StatelessWidget {
                 ),
               ),
               child: const Center(
-                child: Text('ðŸ†', style: TextStyle(fontSize: 36)),
+                child: Text('', style: TextStyle(fontSize: 36)),
               ),
             ),
           ),
@@ -1053,4 +1025,6 @@ class _FinishStat extends StatelessWidget {
     );
   }
 }
+
+
 

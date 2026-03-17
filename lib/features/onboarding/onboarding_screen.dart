@@ -1,11 +1,11 @@
-﻿// lib/features/onboarding/onboarding_screen.dart
+// lib/features/onboarding/onboarding_screen.dart
 
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_button.dart';
 
-// â”€â”€â”€ Data Model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Data Model 
 
 class _OnboardingPage {
   const _OnboardingPage({
@@ -36,7 +36,7 @@ final _pages = [
     title: 'Scan. Digitize.',
     titleAccent: 'Learn.',
     subtitle:
-        'Point your camera at any handwritten or printed notes. PeckPapers reads them instantly â€” perfect lighting not required.',
+        'Point your camera at any handwritten or printed notes. PeckPapers reads them instantly  perfect lighting not required.',
     accentColor: AppColors.amber,
     illustration: _IllustrationStyle.scanner,
   ),
@@ -62,7 +62,7 @@ final _pages = [
   ),
 ];
 
-// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Screen 
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key, required this.onFinish});
@@ -149,7 +149,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       backgroundColor: AppColors.bgBase,
       body: Stack(
         children: [
-          // â”€â”€ Background radial glow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          //  Background radial glow 
           Positioned(
             top: -size.height * 0.15,
             left: -size.width * 0.25,
@@ -174,7 +174,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ),
           ),
 
-          // â”€â”€ Skip button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          //  Skip button 
           SafeArea(
             child: Align(
               alignment: Alignment.topRight,
@@ -204,7 +204,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ),
           ),
 
-          // â”€â”€ Page content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          //  Page content 
           PageView.builder(
             controller: _pageController,
             physics: const NeverScrollableScrollPhysics(),
@@ -224,7 +224,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     children: [
                       SizedBox(height: size.height * 0.10),
 
-                      // â”€â”€ Illustration area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                      //  Illustration area 
                       Center(
                         child: _IllustrationWidget(
                           style: page.illustration,
@@ -236,12 +236,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                       SizedBox(height: size.height * 0.06),
 
-                      // â”€â”€ Tag pill â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                      //  Tag pill 
                       _TagPill(label: page.tag, color: page.accentColor),
 
                       const SizedBox(height: 16),
 
-                      // â”€â”€ Title â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                      //  Title 
                       RichText(
                         text: TextSpan(
                           style: AppTextStyles.displayLG,
@@ -259,7 +259,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                       const SizedBox(height: 16),
 
-                      // â”€â”€ Subtitle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                      //  Subtitle 
                       Text(
                         page.subtitle,
                         style: AppTextStyles.bodyLG.copyWith(height: 1.65),
@@ -267,7 +267,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                       const Spacer(),
 
-                      // â”€â”€ Dots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                      //  Dots 
                       Center(
                         child: _DotRow(
                           count: _pages.length,
@@ -278,7 +278,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                       const SizedBox(height: 28),
 
-                      // â”€â”€ CTA button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                      //  CTA button 
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
                         child: PeckButton(
@@ -296,7 +296,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                       const SizedBox(height: 12),
 
-                      // â”€â”€ Secondary ghost action â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                      //  Secondary ghost action 
                       if (!isLast)
                         Center(
                           child: TextButton(
@@ -323,7 +323,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 }
 
-// â”€â”€â”€ Dot Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Dot Row 
 
 class _DotRow extends StatelessWidget {
   const _DotRow({
@@ -358,7 +358,7 @@ class _DotRow extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Tag Pill â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Tag Pill 
 
 class _TagPill extends StatelessWidget {
   const _TagPill({required this.label, required this.color});
@@ -383,7 +383,7 @@ class _TagPill extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Illustration Widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Illustration Widget 
 
 class _IllustrationWidget extends StatelessWidget {
   const _IllustrationWidget({
@@ -439,7 +439,7 @@ class _IllustrationWidget extends StatelessWidget {
   }
 }
 
-// â”€â”€ Scanner illustration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Scanner illustration 
 
 class _ScannerIllustration extends StatelessWidget {
   const _ScannerIllustration({required this.color, required this.size});
@@ -566,7 +566,7 @@ class _BracketPainter extends CustomPainter {
   bool shouldRepaint(_BracketPainter old) => old.color != color;
 }
 
-// â”€â”€ Flashcard illustration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Flashcard illustration 
 
 class _FlashcardIllustration extends StatelessWidget {
   const _FlashcardIllustration({required this.color, required this.size});
@@ -691,7 +691,7 @@ class _MiniCard extends StatelessWidget {
   );
 }
 
-// â”€â”€ Analytics illustration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Analytics illustration 
 
 class _AnalyticsIllustration extends StatelessWidget {
   const _AnalyticsIllustration({required this.color, required this.size});
@@ -776,4 +776,6 @@ class _AnalyticsIllustration extends StatelessWidget {
     );
   }
 }
+
+
 

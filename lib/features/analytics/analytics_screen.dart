@@ -1,4 +1,4 @@
-﻿// lib/features/analytics/analytics_screen.dart
+// lib/features/analytics/analytics_screen.dart
 
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -9,8 +9,6 @@ import '../../core/widgets/peck_badge.dart';
 import '../../core/widgets/section_header.dart';
 import '../../core/widgets/glow_container.dart';
 import '../../core/widgets/stat_tile.dart';
-
-// â”€â”€â”€ Mock data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _DayActivity {
   const _DayActivity({required this.day, required this.minutes});
@@ -26,7 +24,7 @@ class _SubjectMastery {
     required this.color,
   });
   final String subject;
-  final double mastery; // 0.0 â€“ 1.0
+  final double mastery; // 0.0  1.0
   final int cards;
   final Color color;
 }
@@ -74,10 +72,7 @@ final _subjects = [
   ),
 ];
 
-// Heatmap â€” 35 days, value 0-4
 final _heatmap = List.generate(35, (i) => math.Random(i * 7).nextInt(5));
-
-// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key, this.onBack});
@@ -122,207 +117,284 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-          SliverToBoxAdapter(
-            child: _AnalyticsHeader(
-              onBack: widget.onBack ?? () => Navigator.pop(context),
+          // --- Twitter-Style Top Bar ---
+          SliverAppBar(
+            floating: true,
+            elevation: 0,
+            backgroundColor: AppColors.bgBase.withOpacity(0.9),
+            centerTitle: true,
+            leadingWidth: 70,
+            leading: GestureDetector(
+              onTap: () => Scaffold.of(context).openDrawer(),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: Center(
+                  child: Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.border, width: 1),
+                      image: const DecorationImage(
+                        image: NetworkImage('https://i.pravatar.cc/150?img=11'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            title: Text(
+              'Statistics',
+              style: AppTextStyles.headingMD.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            actions: [
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.share_outlined, color: AppColors.textPrimary),
+              ),
+              const SizedBox(width: 4),
+            ],
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(50),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: AppColors.border, width: 0.5),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      'This Week\'s Overview',
+                      style: AppTextStyles.labelLG.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.bgSurface,
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(color: AppColors.border, width: 0.5),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today_rounded,
+                            size: 12,
+                            color: AppColors.textTertiary,
+                          ),
+                          const SizedBox(width: 6),
+                          Text('Last 7 Days', style: AppTextStyles.labelSM),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
 
-          // â”€â”€ Top stats row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // --- Top Stats ---
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-              child: _TopStatsRow(),
-            ),
-          ),
-
-          const SliverToBoxAdapter(child: SizedBox(height: 28)),
-
-          // â”€â”€ Activity chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: _ActivityChartCard(anim: _chartAnim),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildModernStatCard(
+                      '82%',
+                      'Avg. Score',
+                      Icons.insights_rounded,
+                      AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildModernStatCard(
+                      '12h',
+                      'Total Time',
+                      Icons.timer_outlined,
+                      AppColors.amber,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
-          // â”€â”€ Streak + time row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: _StreakTimeRow(anim: _chartAnim),
-            ),
-          ),
-
-          const SliverToBoxAdapter(child: SizedBox(height: 28)),
-
-          // â”€â”€ Subject mastery â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // --- Mastery Feed Section ---
           const SliverToBoxAdapter(
-            child: SectionHeader(
-              title: 'Subject Mastery',
-              padding: EdgeInsets.symmetric(horizontal: 24),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: SectionHeader(title: 'Subject Mastery'),
             ),
           ),
-
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
           SliverList(
             delegate: SliverChildBuilderDelegate(
-              (ctx, i) => Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 10),
-                child: _SubjectMasteryRow(
-                  subject: _subjects[i],
-                  anim: _chartAnim,
-                  rank: i,
-                ),
-              ),
+              (ctx, i) => _buildMasteryFeedItem(_subjects[i]),
               childCount: _subjects.length,
             ),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 28)),
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
-          // â”€â”€ Heatmap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-          const SliverToBoxAdapter(
-            child: SectionHeader(
-              title: 'Study Heatmap',
-              action: 'Last 35 days',
-              padding: EdgeInsets.symmetric(horizontal: 24),
-            ),
-          ),
-
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
+          // --- Activity Chart ---
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _ActivityChartCard(anim: _chartAnim),
+            ),
+          ),
+          
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+          // --- Heatmap (GitHub like) ---
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _HeatmapCard(data: _heatmap),
             ),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 28)),
-
-          // â”€â”€ World ranking card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+          
+          // --- Streak & Time ---
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: _WorldRankCard(anim: _chartAnim),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _StreakTimeRow(anim: _chartAnim),
             ),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernStatCard(
+    String value,
+    String label,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.bgSurface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border, width: 0.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: AppTextStyles.headingLG.copyWith(
+              color: AppColors.textPrimary,
+            ),
+          ),
+          Text(
+            label,
+            style: AppTextStyles.labelMD.copyWith(
+              color: AppColors.textTertiary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMasteryFeedItem(_SubjectMastery subject) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: subject.color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Center(
+              child: Text(
+                subject.subject[0],
+                style: AppTextStyles.headingMD.copyWith(color: subject.color),
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      subject.subject,
+                      style: AppTextStyles.bodyMDMedium.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      '${(subject.mastery * 100).toInt()}%',
+                      style: AppTextStyles.labelLG.copyWith(
+                        color: subject.color,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: LinearProgressIndicator(
+                    value: subject.mastery,
+                    backgroundColor: AppColors.border,
+                    color: subject.color,
+                    minHeight: 4,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '${subject.cards} cards mastered  Keep it up!',
+                  style: AppTextStyles.bodySM.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-// â”€â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-class _AnalyticsHeader extends StatelessWidget {
-  const _AnalyticsHeader({required this.onBack});
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 24, 20),
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: onBack,
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.bgCard,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 16,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Your Progress', style: AppTextStyles.bodyMD),
-                  Text('Statistics', style: AppTextStyles.headingXL),
-                ],
-              ),
-            ),
-            // Filter chip
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.bgCard,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.tune_rounded,
-                    size: 14,
-                    color: AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: 6),
-                  Text('This week', style: AppTextStyles.labelLG),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// â”€â”€â”€ Top Stats Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-class _TopStatsRow extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: StatTile(
-            value: '4h 20m',
-            label: 'Study time',
-            color: AppColors.amber,
-            icon: const Icon(Icons.timer_outlined),
-            trend: '+18%',
-            trendUp: true,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: StatTile(
-            value: '186',
-            label: 'World rank',
-            color: AppColors.violet,
-            icon: const Icon(Icons.public_rounded),
-            trend: '+12',
-            trendUp: true,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// â”€â”€â”€ Activity Chart Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Activity Chart Card 
 
 class _ActivityChartCard extends StatelessWidget {
   const _ActivityChartCard({required this.anim});
@@ -423,7 +495,7 @@ class _LegendDot extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Bar Chart Painter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Bar Chart Painter 
 
 class _BarChartPainter extends CustomPainter {
   _BarChartPainter({required this.data, required this.progress});
@@ -460,7 +532,7 @@ class _BarChartPainter extends CustomPainter {
         topRight: const Radius.circular(6),
       );
 
-      // Determine bar colour â€” alternate amber/violet for variety
+      // Determine bar colour  alternate amber/violet for variety
       final isAccent =
           data[i].minutes == maxMinutes || data[i].minutes > maxMinutes * 0.7;
       final barColor = isAccent ? AppColors.amber : AppColors.violet;
@@ -493,7 +565,7 @@ class _BarChartPainter extends CustomPainter {
   bool shouldRepaint(_BarChartPainter old) => old.progress != progress;
 }
 
-// â”€â”€â”€ Streak + Time Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Streak + Time Row 
 
 class _StreakTimeRow extends StatelessWidget {
   const _StreakTimeRow({required this.anim});
@@ -516,7 +588,7 @@ class _StreakTimeRow extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Streak', style: AppTextStyles.headingSM),
-                    const Text('ðŸ”¥', style: TextStyle(fontSize: 20)),
+                    const Text('', style: TextStyle(fontSize: 20)),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -550,7 +622,9 @@ class _StreakTimeRow extends StatelessWidget {
                           boxShadow: done && anim.value > 0.8
                               ? [
                                   BoxShadow(
-                                    color: AppColors.amber.withOpacityCompat(0.4),
+                                    color: AppColors.amber.withOpacityCompat(
+                                      0.4,
+                                    ),
                                     blurRadius: 8,
                                   ),
                                 ]
@@ -656,7 +730,7 @@ class _StreakTimeRow extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Subject Mastery Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Subject Mastery Row 
 
 class _SubjectMasteryRow extends StatelessWidget {
   const _SubjectMasteryRow({
@@ -735,7 +809,10 @@ class _SubjectMasteryRow extends StatelessWidget {
                     height: 6,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [subject.color, subject.color.withOpacityCompat(0.6)],
+                        colors: [
+                          subject.color,
+                          subject.color.withOpacityCompat(0.6),
+                        ],
                       ),
                       borderRadius: BorderRadius.circular(3),
                       boxShadow: [
@@ -756,11 +833,11 @@ class _SubjectMasteryRow extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Heatmap Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Heatmap Card 
 
 class _HeatmapCard extends StatelessWidget {
   const _HeatmapCard({required this.data});
-  final List<int> data; // values 0â€“4
+  final List<int> data; // values 04
 
   static const _days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
@@ -776,7 +853,7 @@ class _HeatmapCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 5 weeks Ã— 7 days = 35 cells
+    // 5 weeks  7 days = 35 cells
     final weeks = 5;
 
     return PeckCard(
@@ -823,7 +900,9 @@ class _HeatmapCard extends StatelessWidget {
                           boxShadow: value >= 3
                               ? [
                                   BoxShadow(
-                                    color: AppColors.amber.withOpacityCompat(0.3),
+                                    color: AppColors.amber.withOpacityCompat(
+                                      0.3,
+                                    ),
                                     blurRadius: 6,
                                   ),
                                 ]
@@ -867,7 +946,7 @@ class _HeatmapCard extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ World Rank Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  World Rank Card 
 
 class _WorldRankCard extends StatelessWidget {
   const _WorldRankCard({required this.anim});
@@ -913,7 +992,7 @@ class _WorldRankCard extends StatelessWidget {
                 Text('You are the 186th', style: AppTextStyles.bodyMD),
                 const SizedBox(height: 2),
                 Text(
-                  'Top 2% worldwide ðŸŒ',
+                  'Top 2% worldwide ',
                   style: AppTextStyles.bodySM.copyWith(
                     color: AppColors.success,
                   ),
@@ -941,7 +1020,7 @@ class _WorldRankCard extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Sparkline Painter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Sparkline Painter 
 
 class _SparklinePainter extends CustomPainter {
   _SparklinePainter({required this.progress});
@@ -1015,4 +1094,5 @@ class _SparklinePainter extends CustomPainter {
   @override
   bool shouldRepaint(_SparklinePainter old) => old.progress != progress;
 }
+
 

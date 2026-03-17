@@ -1,4 +1,4 @@
-﻿// lib/features/settings/settings_screen.dart
+// lib/features/settings/settings_screen.dart
 
 import 'package:flutter/material.dart';
 import '../../core/settings/app_settings_scope.dart';
@@ -16,126 +16,183 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.bgBase,
       appBar: AppBar(
-        title: Text('Settings', style: AppTextStyles.headingLG),
+        backgroundColor: AppColors.bgBase,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: AppColors.textPrimary,
+            size: 18,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Settings',
+          style: AppTextStyles.bodyMDMedium.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
         children: [
-          _SectionHeader(title: 'Appearance', icon: Icons.palette_outlined),
-          const SizedBox(height: 12),
-          PeckCard(
-            padding: const EdgeInsets.all(16),
+          _SectionHeader(title: 'Account'),
+          _buildSettingsTile(
+            Icons.person_outline_rounded,
+            'Personal Information',
+            'Update your email, phone, and name.',
+            onTap: () {},
+          ),
+          _buildSettingsTile(
+            Icons.lock_outline_rounded,
+            'Change Password',
+            'Secure your account with a strong password.',
+            onTap: () {},
+          ),
+
+          _SectionHeader(title: 'Appearance'),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
                 Icon(
-                  settings.isDark ? Icons.dark_mode : Icons.light_mode,
-                  color: AppColors.primary,
+                  settings.isDark
+                      ? Icons.dark_mode_outlined
+                      : Icons.light_mode_outlined,
+                  color: AppColors.textPrimary,
+                  size: 22,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
-                  child: Text(
-                    settings.isDark ? 'Dark Mode' : 'Light Mode',
-                    style: AppTextStyles.bodyMDMedium,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Dark Mode', style: AppTextStyles.bodyMDMedium),
+                      Text(
+                        'Switch between light and dark themes.',
+                        style: AppTextStyles.bodySM,
+                      ),
+                    ],
                   ),
                 ),
-                _ModePill(
-                  label: 'Light',
-                  active: !settings.isDark,
-                  onTap: () => settings.setThemeMode(ThemeMode.light),
-                ),
-                const SizedBox(width: 8),
-                _ModePill(
-                  label: 'Dark',
-                  active: settings.isDark,
-                  onTap: () => settings.setThemeMode(ThemeMode.dark),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          _SectionHeader(title: 'Notifications', icon: Icons.notifications_none),
-          const SizedBox(height: 12),
-          PeckCard(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                _SwitchRow(
-                  title: 'Enable notifications',
-                  subtitle: 'Get reminders to keep your streak alive.',
-                  value: settings.notifyEnabled,
-                  onChanged: settings.setNotifyEnabled,
-                ),
-                Divider(height: 24, color: AppColors.border),
-                _TimeRow(
-                  title: 'Notify me daily at',
-                  subtitle: 'Pick a time that fits your routine.',
-                  time: settings.dailyNotifyTime,
-                  enabled: settings.notifyEnabled,
-                  onTap: () async {
-                    final picked = await showTimePicker(
-                      context: context,
-                      initialTime: settings.dailyNotifyTime,
-                    );
-                    if (picked != null) {
-                      await settings.setDailyNotifyTime(picked);
-                    }
-                  },
-                ),
-                Divider(height: 24, color: AppColors.border),
-                _SwitchRow(
-                  title: 'Study reminder',
-                  subtitle: 'Remind me to study for a minimum duration.',
-                  value: settings.studyReminderEnabled,
-                  onChanged: settings.setStudyReminderEnabled,
-                ),
-                const SizedBox(height: 14),
-                _SliderRow(
-                  label: 'At least ${settings.studyMinutes} minutes',
-                  value: settings.studyMinutes.toDouble(),
-                  enabled: settings.studyReminderEnabled,
-                  onChanged: (value) =>
-                      settings.setStudyMinutes(value.round()),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          _SectionHeader(title: 'About', icon: Icons.info_outline),
-          const SizedBox(height: 12),
-          PeckCard(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.shield_outlined, color: AppColors.textSecondary),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Local-only build. No data leaves your device.',
-                    style: AppTextStyles.bodyMD,
+                Switch(
+                  value: settings.isDark,
+                  onChanged: (v) => settings.setThemeMode(
+                    v ? ThemeMode.dark : ThemeMode.light,
                   ),
+                  activeColor: AppColors.primary,
                 ),
               ],
             ),
           ),
+
+          _SectionHeader(title: 'Notifications'),
+          _buildSettingsTile(
+            Icons.notifications_none_rounded,
+            'Push Notifications',
+            'Manage how you receive study reminders.',
+            trailing: Switch(
+              value: settings.notifyEnabled,
+              onChanged: settings.setNotifyEnabled,
+              activeColor: AppColors.primary,
+            ),
+          ),
+
+          _SectionHeader(title: 'Sync & Backup'),
+          _buildSettingsTile(
+            Icons.cloud_outlined,
+            'Cloud Sync',
+            'Keep your data synced across devices.',
+            onTap: () {},
+          ),
+
+          _SectionHeader(title: 'About PECKPAPERS'),
+          _buildSettingsTile(
+            Icons.help_outline_rounded,
+            'Help Center',
+            null,
+            onTap: () {},
+          ),
+          _buildSettingsTile(
+            Icons.shield_outlined,
+            'Privacy Policy',
+            null,
+            onTap: () {},
+          ),
+
+          const SizedBox(height: 40),
+          Center(
+            child: Text(
+              'Version 2.0.0 (X-Edition)',
+              style: AppTextStyles.labelSM.copyWith(
+                color: AppColors.textTertiary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 100),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile(
+    IconData icon,
+    String title,
+    String? subtitle, {
+    Widget? trailing,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.textPrimary, size: 22),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTextStyles.bodyMDMedium),
+                  if (subtitle != null)
+                    Text(
+                      subtitle,
+                      style: AppTextStyles.bodySM.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (trailing != null)
+              trailing
+            else if (onTap != null)
+              Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, required this.icon});
+  const _SectionHeader({required this.title});
   final String title;
-  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, color: AppColors.primary),
-        const SizedBox(width: 10),
-        Text(title, style: AppTextStyles.headingMD),
-      ],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+      color: AppColors.bgSurface.withOpacity(0.5),
+      child: Text(
+        title,
+        style: AppTextStyles.bodyMDMedium.copyWith(
+          fontWeight: FontWeight.w900,
+          color: AppColors.textPrimary,
+        ),
+      ),
     );
   }
 }
@@ -291,4 +348,5 @@ class _SliderRow extends StatelessWidget {
     );
   }
 }
+
 

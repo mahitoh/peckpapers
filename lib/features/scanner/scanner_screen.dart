@@ -1,4 +1,4 @@
-﻿// lib/features/scanner/scanner_screen.dart
+// lib/features/scanner/scanner_screen.dart
 
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -7,18 +7,19 @@ import 'package:image_picker/image_picker.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/peck_button.dart';
+import '../../core/widgets/glass_card.dart';
 import '../pdf/pdf_preview_screen.dart';
 
-// â”€â”€â”€ Scanner states â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- Scanner states ---
 
 enum _ScanState {
   idle, // Camera live, waiting for capture
-  scanning, // Processing OCR â€” progress bar animating
-  done, // Text extracted â€” show save sheet
+  scanning, // Processing OCR - progress bar animating
+  done, // Text extracted - show save sheet
   error, // Something went wrong
 }
 
-// â”€â”€â”€ Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- Screen ---
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key, this.onSaved, this.onBack});
@@ -41,7 +42,7 @@ class _ScannerScreenState extends State<ScannerScreen>
   double _progress = 0.0;
   String _extractedText = '';
 
-  // Scan line animation â€” bounces top â†’ bottom inside the frame
+  // Scan line animation  bounces top  bottom inside the frame
   late AnimationController _scanLineCtrl;
   late Animation<double> _scanLineAnim;
 
@@ -66,7 +67,7 @@ class _ScannerScreenState extends State<ScannerScreen>
   }
 
   void _initAnimations() {
-    // â”€â”€ Scan line bounce â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Scan line bounce 
     _scanLineCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2400),
@@ -76,7 +77,7 @@ class _ScannerScreenState extends State<ScannerScreen>
       curve: Curves.easeInOut,
     );
 
-    // â”€â”€ Progress bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Progress bar 
     _progressCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2200),
@@ -93,7 +94,7 @@ class _ScannerScreenState extends State<ScannerScreen>
       }
     });
 
-    // â”€â”€ Capture button pulse â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Capture button pulse 
     _btnPulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -103,7 +104,7 @@ class _ScannerScreenState extends State<ScannerScreen>
       end: 1.0,
     ).animate(CurvedAnimation(parent: _btnPulseCtrl, curve: Curves.easeInOut));
 
-    // â”€â”€ Bracket entrance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Bracket entrance 
     _bracketsCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 700),
@@ -147,6 +148,8 @@ class _ScannerScreenState extends State<ScannerScreen>
       _pickedImage = image;
       _state = _ScanState.idle;
     });
+    // Immediately process scan after picking an image
+    _captureAndScan();
   }
 
   Future<void> _captureAndScan() async {
@@ -158,16 +161,16 @@ class _ScannerScreenState extends State<ScannerScreen>
       _progress = 0.0;
     });
 
-    // Simulate OCR processing â€” replace with real ML Kit call
+    // Simulate OCR processing  replace with real ML Kit call
     _progressCtrl.forward(from: 0);
   }
 
   void _onScanComplete() {
-    // Simulate extracted text â€” replace with real OCR result
+    // Simulate extracted text  replace with real OCR result
     setState(() {
       _extractedText =
           'Sample extracted text from your notes. '
-          'Integration by parts: âˆ«u dv = uv âˆ’ âˆ«v du. '
+          'Integration by parts: u dv = uv  v du. '
           'Remember to check boundary conditions.';
       _state = _ScanState.done;
     });
@@ -176,8 +179,7 @@ class _ScannerScreenState extends State<ScannerScreen>
 
   void _openPdfPreview({required String title, required String subject}) {
     final safeTitle = title.trim().isEmpty ? 'Untitled Scan' : title.trim();
-    final safeSubject =
-        subject.trim().isEmpty ? 'General' : subject.trim();
+    final safeSubject = subject.trim().isEmpty ? 'General' : subject.trim();
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => PdfPreviewScreen(
@@ -237,7 +239,7 @@ class _ScannerScreenState extends State<ScannerScreen>
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
 
-    // Frame dimensions â€” golden ratio-ish viewport
+    // Frame dimensions  golden ratio-ish viewport
     final frameW = size.width * 0.82;
     final frameH = frameW * 1.28;
 
@@ -246,12 +248,9 @@ class _ScannerScreenState extends State<ScannerScreen>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // â”€â”€ Camera preview / placeholder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          //  Camera preview / placeholder 
           if (_pickedImage != null)
-            Image.file(
-              File(_pickedImage!.path),
-              fit: BoxFit.cover,
-            )
+            Image.file(File(_pickedImage!.path), fit: BoxFit.cover)
           else if (_camReady)
             CameraPreview(_camCtrl!)
           else
@@ -275,10 +274,10 @@ class _ScannerScreenState extends State<ScannerScreen>
             ),
           ),
 
-          // â”€â”€ Dark vignette overlay (outside frame) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          //  Dark vignette overlay (outside frame) 
           _FrameVignette(frameW: frameW, frameH: frameH, size: size),
 
-          // â”€â”€ Scan frame with brackets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          //  Scan frame with brackets 
           Center(
             child: FadeTransition(
               opacity: _bracketsFade,
@@ -295,14 +294,19 @@ class _ScannerScreenState extends State<ScannerScreen>
             ),
           ),
 
-          // â”€â”€ Top bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-          SafeArea(
-            child: _TopBar(
-              onBack: widget.onBack ?? () => Navigator.pop(context),
+          //  Top bar 
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: _TopBar(
+                onBack: widget.onBack ?? () => Navigator.pop(context),
+              ),
             ),
           ),
 
-          // â”€â”€ Title prompt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          //  Title prompt 
           Positioned(
             top: MediaQuery.of(context).padding.top + 72,
             left: 0,
@@ -317,7 +321,7 @@ class _ScannerScreenState extends State<ScannerScreen>
             child: _ScanTipCard(hasGallery: _pickedImage != null),
           ),
 
-          // â”€â”€ Bottom controls â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          //  Bottom controls 
           Positioned(
             bottom: 0,
             left: 0,
@@ -337,7 +341,7 @@ class _ScannerScreenState extends State<ScannerScreen>
   }
 }
 
-// â”€â”€â”€ Frame Vignette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Frame Vignette 
 
 class _FrameVignette extends StatelessWidget {
   const _FrameVignette({
@@ -396,7 +400,7 @@ class _VignettePainter extends CustomPainter {
       old.frameW != frameW || old.frameH != frameH;
 }
 
-// â”€â”€â”€ Scan Frame â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Scan Frame 
 
 class _ScanFrame extends StatelessWidget {
   const _ScanFrame({
@@ -544,7 +548,7 @@ class _ScanFrame extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Bracket corner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Bracket corner 
 
 class _Bracket extends StatelessWidget {
   const _Bracket({
@@ -613,7 +617,7 @@ class _BracketPainter extends CustomPainter {
   bool shouldRepaint(_BracketPainter old) => old.color != color;
 }
 
-// â”€â”€â”€ Scan Line â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Scan Line 
 
 class _ScanLine extends StatelessWidget {
   const _ScanLine({required this.opacity});
@@ -673,7 +677,7 @@ class _ScanLine extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Top Bar 
 
 class _TopBar extends StatelessWidget {
   const _TopBar({required this.onBack});
@@ -742,7 +746,10 @@ class _TopBarAction extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withOpacityCompat(0.12),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withOpacityCompat(0.15), width: 1),
+          border: Border.all(
+            color: Colors.white.withOpacityCompat(0.15),
+            width: 1,
+          ),
         ),
         child: Icon(icon, color: Colors.white, size: 18),
       ),
@@ -750,7 +757,7 @@ class _TopBarAction extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Title Prompt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Title Prompt 
 
 class _TitlePrompt extends StatelessWidget {
   const _TitlePrompt({required this.state, required this.progress});
@@ -767,17 +774,17 @@ class _TitlePrompt extends StatelessWidget {
         _ScanState.idle => _titleRow(
           key: const ValueKey('idle'),
           white: 'Scan Your ',
-          amber: 'Questionâ€¦',
+          amber: 'Question',
         ),
         _ScanState.scanning => _titleRow(
           key: const ValueKey('scanning'),
           white: 'Analysing your ',
-          amber: 'Notesâ€¦',
+          amber: 'Notes',
         ),
         _ScanState.done => _titleRow(
           key: const ValueKey('done'),
           white: 'Scan ',
-          amber: 'Complete âœ“',
+          amber: 'Complete ',
         ),
         _ScanState.error => _titleRow(
           key: const ValueKey('error'),
@@ -813,44 +820,35 @@ class _ScanTipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacityCompat(0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacityCompat(0.12), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacityCompat(0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+    return GlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      borderRadius: 16,
+      opacity: 0.1,
+      blur: 10,
       child: Row(
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
-              color: AppColors.amber.withOpacityCompat(0.2),
+              color: AppColors.amber.withOpacity(0.2),
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.amber.withOpacityCompat(0.5)),
             ),
             child: Icon(
               Icons.auto_awesome_rounded,
               color: AppColors.amber,
-              size: 16,
+              size: 18,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               hasGallery
                   ? 'Gallery image loaded. Tap scan to extract text.'
                   : 'Keep the page inside the frame for best results.',
               style: AppTextStyles.bodySM.copyWith(
-                color: Colors.white.withOpacityCompat(0.75),
+                color: Colors.white.withOpacity(0.9),
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -860,7 +858,7 @@ class _ScanTipCard extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Bottom Controls â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Bottom Controls 
 
 class _BottomControls extends StatelessWidget {
   const _BottomControls({
@@ -942,7 +940,7 @@ class _BottomControls extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Progress Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Progress Section 
 
 class _ProgressSection extends StatelessWidget {
   const _ProgressSection({required this.progress});
@@ -993,7 +991,7 @@ class _ProgressSection extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              'Extracting textâ€¦',
+              'Extracting text',
               style: AppTextStyles.bodyMD.copyWith(
                 color: Colors.white.withOpacityCompat(0.6),
               ),
@@ -1005,7 +1003,7 @@ class _ProgressSection extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Capture Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Capture Button 
 
 class _CaptureButton extends StatelessWidget {
   const _CaptureButton({
@@ -1095,7 +1093,7 @@ class _CaptureButton extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Secondary Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Secondary Button 
 
 class _SecondaryBtn extends StatelessWidget {
   const _SecondaryBtn({
@@ -1140,7 +1138,7 @@ class _SecondaryBtn extends StatelessWidget {
   }
 }
 
-// â”€â”€â”€ Save Bottom Sheet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Save Bottom Sheet 
 
 class _SaveSheet extends StatefulWidget {
   const _SaveSheet({
@@ -1253,7 +1251,7 @@ class _SaveSheetState extends State<_SaveSheet> {
             controller: _titleCtrl,
             style: AppTextStyles.bodyMDMedium,
             decoration: const InputDecoration(
-              hintText: 'Document titleâ€¦',
+              hintText: 'Document title',
               prefixIcon: Icon(Icons.title_rounded),
             ),
           ),
@@ -1265,7 +1263,7 @@ class _SaveSheetState extends State<_SaveSheet> {
             controller: _subjectCtrl,
             style: AppTextStyles.bodyMDMedium,
             decoration: const InputDecoration(
-              hintText: 'Subject (e.g. Mathematics)â€¦',
+              hintText: 'Subject (e.g. Mathematics)',
               prefixIcon: Icon(Icons.school_rounded),
             ),
           ),
@@ -1304,4 +1302,5 @@ class _SaveSheetState extends State<_SaveSheet> {
     );
   }
 }
+
 
